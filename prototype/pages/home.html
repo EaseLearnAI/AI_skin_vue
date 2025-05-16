@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喵喵护肤助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            100: '#FFF9FB',
+                            200: '#FFECF2',
+                            300: '#FFD6E5',
+                            400: '#FFBBD0',
+                            500: '#F8BBD0',
+                            600: '#E1BEE7',
+                        },
+                        mint: {
+                            100: '#E8F5E9',
+                            300: '#C8E6C9',
+                        },
+                        gold: {
+                            200: '#FFECB3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes cloudMove {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes weatherSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes taskComplete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        @keyframes expGain {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .cloud-move {
+            animation: cloudMove 8s ease-in-out infinite;
+        }
+        .weather-spin {
+            animation: weatherSpin 20s linear infinite;
+        }
+        .task-complete {
+            animation: taskComplete 0.5s ease-out;
+        }
+        .exp-gain {
+            position: absolute;
+            color: #F8BBD0;
+            font-weight: bold;
+            pointer-events: none;
+            animation: expGain 1s ease-out forwards;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(248, 187, 208, 0.2);
+        }
+        .progress-bar {
+            position: relative;
+            height: 4px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #F8BBD0, #E1BEE7);
+            animation: progress 2s ease-out;
+        }
+        @keyframes progress {
+            from { width: 0; }
+            to { width: var(--progress-width); }
+        }
+        .glass-effect {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .cat-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
+        }
+        .task-sticker {
+            position: relative;
+            background: linear-gradient(135deg, #FFF9C4, #FFECB3);
+            border-radius: 2px;
+            transform: rotate(-2deg);
+            transition: all 0.3s ease;
+        }
+        .task-sticker::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30%;
+            height: 4px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+        }
+        .task-sticker:hover {
+            transform: rotate(0deg) translateY(-2px);
+        }
+        .product-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .product-card:hover {
+            transform: translateY(-5px) rotateY(5deg);
+        }
+        .cat-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(135deg, #F8BBD0, #E1BEE7);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: white;
+            transform: rotate(5deg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #weatherCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .dark-mode {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+        }
+        .dark-mode .cat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-sakura-100 min-h-screen pb-20">
+    <!-- Status Bar -->
+    <div class="bg-white px-4 py-1 flex justify-end space-x-2 text-gray-600 text-xs">
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-sakura-500 to-sakura-600 p-4">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-semibold text-white flex items-center">
+                <span class="text-2xl mr-2">😺</span>
+                喵喵护肤助手
+            </h1>
+            <div class="flex space-x-2">
+                <button class="w-8 h-8 flex items-center justify-center bg-white/20 backdrop-blur rounded-full text-white">
+                    <i class="fas fa-bell"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Search Bar -->
+        <div class="relative">
+            <input type="search" 
+                   placeholder="搜索护肤品或成分喵~" 
+                   class="w-full pl-10 pr-4 py-2 bg-white/90 backdrop-blur rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+    </header>
+
+
+
+    <!-- Main Content -->
+    <main class="p-4 space-y-6">
+        <!-- Core Features -->
+        <div class="mb-8">
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-3">
+                    <i class="fas fa-bolt text-white text-lg"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">核心功能</h2>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <!-- Product Analysis -->
+                <a href="upload.html" class="block h-[180px] group">
+                    <div class="bg-gradient-to-br from-pink-50 to-rose-100 p-5 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 h-full flex flex-col items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="w-14 h-14 bg-white shadow-lg rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                            <i class="fas fa-flask text-2xl text-pink-500"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-gray-800 mb-2">产品分析</h3>
+                        <p class="text-sm text-gray-600 text-center">AI智能解析成分</p>
+                    </div>
+                </a>
+
+                <!-- Conflict Detection -->
+                <a href="conflict.html" class="block h-[180px] group">
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-100 p-5 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 h-full flex flex-col items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="w-14 h-14 bg-white shadow-lg rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                            <i class="fas fa-exclamation-triangle text-2xl text-purple-500"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-gray-800 mb-2">冲突检测</h3>
+                        <p class="text-sm text-gray-600 text-center">避免成分相互作用</p>
+                    </div>
+                </a>
+
+                <!-- Skin Analysis -->
+                <a href="skinstatus.html" class="block h-[180px] group">
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-100 p-5 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 h-full flex flex-col items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="w-14 h-14 bg-white shadow-lg rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                            <i class="fas fa-camera text-2xl text-blue-500"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-gray-800 mb-2">肌肤检测</h3>
+                        <p class="text-sm text-gray-600 text-center">AI智能肤质分析</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Today's Routine -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5">
+            <h3 class="text-base font-medium mb-3 flex items-center">
+                <i class="fas fa-calendar-check mr-2 text-sakura-500"></i>
+                今日使用方案
+            </h3>
+            <div class="space-y-4">
+                <!-- Morning Routine -->
+                <div>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-sun text-yellow-500 mr-2"></i>
+                        <h4 class="text-sm font-medium">早间护理</h4>
+                    </div>
+                    <div class="pl-6 space-y-2">
+                        <div class="flex items-center p-2 bg-sakura-100 rounded-lg">
+                            <span class="w-5 h-5 bg-sakura-300 rounded-full flex items-center justify-center text-white text-xs mr-3">1</span>
+                            <span class="text-sm">COSRX 低pH洁面啫喱</span>
+                        </div>
+                        <div class="flex items-center p-2 bg-sakura-100 rounded-lg">
+                            <span class="w-5 h-5 bg-sakura-300 rounded-full flex items-center justify-center text-white text-xs mr-3">2</span>
+                            <span class="text-sm">理肤泉特安舒缓保湿霜</span>
+                        </div>
+                        <div class="flex items-center p-2 bg-sakura-100 rounded-lg">
+                            <span class="w-5 h-5 bg-sakura-300 rounded-full flex items-center justify-center text-white text-xs mr-3">3</span>
+                            <span class="text-sm">安耐晒金瓶防晒霜</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evening Routine -->
+                <div>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-moon text-blue-500 mr-2"></i>
+                        <h4 class="text-sm font-medium">晚间护理</h4>
+                    </div>
+                    <div class="pl-6 space-y-2">
+                        <div class="flex items-center p-2 bg-sakura-100 rounded-lg">
+                            <span class="w-5 h-5 bg-sakura-300 rounded-full flex items-center justify-center text-white text-xs mr-3">1</span>
+                            <span class="text-sm">COSRX 低pH洁面啫喱</span>
+                        </div>
+                        <div class="flex items-center p-2 bg-sakura-100 rounded-lg">
+                            <span class="w-5 h-5 bg-sakura-300 rounded-full flex items-center justify-center text-white text-xs mr-3">2</span>
+                            <span class="text-sm">The Ordinary 维生素C精华</span>
+                        </div>
+                        <div class="flex items-center p-2 bg-sakura-100 rounded-lg">
+                            <span class="w-5 h-5 bg-sakura-300 rounded-full flex items-center justify-center text-white text-xs mr-3">3</span>
+                            <span class="text-sm">理肤泉特安舒缓保湿霜</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around">
+            <a href="home.html" class="flex flex-col items-center text-sakura-500">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="upload.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-flask text-xl"></i>
+                <span class="text-xs mt-1">产品分析</span>
+            </a>
+            <a href="skinstatus.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-camera text-xl"></i>
+                <span class="text-xs mt-1">肌肤检测</span>
+            </a>
+            <a href="profile.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // 3D Cloud Animation
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: document.getElementById('weatherCanvas'),
+            alpha: true 
+        });
+        renderer.setSize(window.innerWidth, 200);
+
+        // Create cloud particles
+        const cloudGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const cloudMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        for(let i = 0; i < 10; i++) {
+            const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+            cloud.position.set(
+                Math.random() * 10 - 5,
+                Math.random() * 2 - 1,
+                Math.random() * 5 - 2.5
+            );
+            cloud.scale.set(
+                Math.random() * 0.5 + 0.5,
+                Math.random() * 0.3 + 0.3,
+                Math.random() * 0.5 + 0.5
+            );
+            scene.add(cloud);
+        }
+
+        camera.position.z = 5;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            scene.children.forEach(cloud => {
+                cloud.rotation.y += 0.001;
+                cloud.position.x += 0.001;
+                if(cloud.position.x > 6) cloud.position.x = -6;
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Task completion animation
+        function completeTask(element) {
+            if (!element.classList.contains('task-complete')) {
+                element.classList.add('task-complete');
+                const expGain = document.createElement('div');
+                expGain.className = 'exp-gain';
+                expGain.textContent = '+10';
+                element.appendChild(expGain);
+                setTimeout(() => {
+                    element.classList.remove('task-complete');
+                    expGain.remove();
+                }, 1000);
+            }
+        }
+
+        // Enhanced dark mode toggle
+        function checkDarkMode() {
+            const hour = new Date().getHours();
+            if(hour >= 19 || hour < 6) {
+                document.body.classList.add('dark-mode');
+                // Update UI elements for dark mode
+                document.querySelectorAll('.card-hover').forEach(card => {
+                    card.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                });
+            } else {
+                document.body.classList.remove('dark-mode');
+                // Reset UI elements
+                document.querySelectorAll('.card-hover').forEach(card => {
+                    card.style.backgroundColor = 'white';
+                });
+            }
+        }
+        checkDarkMode();
+        setInterval(checkDarkMode, 60000);
+
+        // Pull to refresh animation
+        let touchStart = 0;
+        document.addEventListener('touchstart', e => {
+            touchStart = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', e => {
+            const touchY = e.touches[0].clientY;
+            const diff = touchY - touchStart;
+            if(diff > 50 && window.scrollY <= 0) {
+                // Show refresh animation
+                const cat = document.querySelector('.float-animation');
+                cat.style.transform = `translateY(${diff/3}px) rotate(${diff/10}deg)`;
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            const cat = document.querySelector('.float-animation');
+            cat.style.transform = '';
+        });
+    </script>
+</body>
+</html> 

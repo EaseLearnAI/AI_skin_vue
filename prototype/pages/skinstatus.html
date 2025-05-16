@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喵喵肌肤检测</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            100: '#FFF9FB',
+                            200: '#FFECF2',
+                            300: '#FFD6E5',
+                            400: '#FFBBD0',
+                            500: '#F8BBD0',
+                            600: '#E1BEE7',
+                        },
+                        mint: {
+                            100: '#E8F5E9',
+                            300: '#C8E6C9',
+                        },
+                        gold: {
+                            200: '#FFECB3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .cat-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
+            transition: all 0.3s ease;
+        }
+        .cat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.25);
+        }
+        .petal-progress {
+            display: flex;
+            gap: 4px;
+        }
+        .petal {
+            width: 20px;
+            height: 20px;
+            background: #F8BBD0;
+            border-radius: 50% 0;
+            transform: rotate(45deg);
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+        .petal.active {
+            opacity: 1;
+            background: linear-gradient(135deg, #F8BBD0, #E1BEE7);
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0.5; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #F8BBD0, transparent);
+            animation: scan 2s linear infinite;
+        }
+        .cat-eyes {
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-eyes::before {
+            content: '👀';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            opacity: 0.7;
+        }
+        @keyframes scanEffect {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            50% { transform: translateY(100%) scale(1.02); opacity: 0.4; }
+            100% { transform: translateY(0) scale(1); opacity: 0.8; }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(248, 187, 208, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(248, 187, 208, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(248, 187, 208, 0); }
+        }
+        .scan-animation {
+            animation: scanEffect 3s ease-in-out infinite;
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring circle {
+            transition: all 0.3s ease;
+        }
+        .analysis-card {
+            transition: all 0.3s ease;
+        }
+        .analysis-card:hover {
+            transform: translateY(-5px);
+        }
+        .recommendation-tag {
+            position: relative;
+            overflow: hidden;
+        }
+        .recommendation-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        /* 隐藏滚动条但保留滚动功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 玻璃拟态效果 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(248, 187, 208, 0.2);
+        }
+        /* 按钮波纹效果 */
+        .ripple-button {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.8s;
+        }
+        .ripple-button:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+        /* 进度条样式优化 */
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            background: #f0f0f0;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, #F8BBD0, #E1BEE7);
+        }
+    </style>
+</head>
+<body class="bg-sakura-100 min-h-screen pb-20">
+    <!-- Status Bar -->
+    <div class="bg-white px-4 py-1 flex justify-end space-x-2 text-gray-600 text-xs">
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-sakura-500 to-sakura-600 p-4">
+        <div class="flex items-center justify-between">
+            <button onclick="history.back()" class="text-white">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-camera mr-2"></i>
+                肌肤检测
+            </h1>
+            <button class="text-white">
+                <i class="fas fa-history"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4">
+        <!-- Camera Section with Enhanced UI -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5">
+            <div class="relative aspect-[4/3] bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg overflow-hidden mb-4">
+                <div class="absolute inset-0 flex items-center justify-center z-10">
+                    <div class="text-center">
+                       
+                        <p class="text-sm text-white">让我来看看你的肌肤状态喵～</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+                <div class="absolute inset-0 scan-animation">
+                    <div class="h-full w-full border-2 border-white/30 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="flex flex-col items-center justify-center p-4 bg-sakura-100 rounded-xl hover:bg-sakura-200 transition-colors shadow-md ripple-button">
+                    <i class="fas fa-camera text-sakura-500 text-xl mb-2"></i>
+                    拍照检测
+                </button>
+                <button class="flex flex-col items-center justify-center p-4 bg-sakura-100 rounded-xl hover:bg-sakura-200 transition-colors shadow-md ripple-button">
+                    <i class="fas fa-image text-sakura-500 text-xl mb-2"></i>
+                    从相册选择
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Section with Enhanced UI -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5">
+            <h2 class="text-base font-medium mb-4 flex items-center">
+                <span class="text-lg mr-2">🔍</span>
+                今日肌肤状态
+            </h2>
+            <div class="space-y-4 no-scrollbar" style="max-height: calc(100vh - 350px); overflow-y: auto;">
+                <!-- Hydration with Ring Progress -->
+                <div class="analysis-card p-4 bg-blue-50 rounded-xl glass-card mb-3">
+                    <div class="flex items-start">
+                        <div class="relative w-16 h-16 mr-4">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle stroke="#E6F3FF" stroke-width="4" fill="transparent" r="25" cx="30" cy="30"/>
+                                <circle stroke="#3B82F6" stroke-width="4" fill="transparent" r="25" cx="30" cy="30"
+                                    stroke-dasharray="157" stroke-dashoffset="39"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-medium text-blue-500">75%</span>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-medium flex items-center">
+                                    <i class="fas fa-tint text-blue-500 mr-2"></i>
+                                    水分状态
+                                </h3>
+                            </div>
+                            <p class="text-xs text-gray-500">皮肤水分充足，继续保持喵～</p>
+                            <div class="mt-2 flex items-center text-xs text-blue-500">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                较昨日提升5%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Oil -->
+                <div class="p-4 bg-yellow-50 rounded-xl glass-card mb-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-oil-can text-yellow-500 mr-2"></i>
+                            <h3 class="text-sm font-medium">油分状态</h3>
+                        </div>
+                        <span class="text-xs text-yellow-500">60%</span>
+                    </div>
+                    <div class="w-full h-2 bg-yellow-100 rounded-full overflow-hidden">
+                        <div class="w-3/5 h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"></div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">T区油分略偏高，建议使用控油产品喵～</p>
+                </div>
+
+                <!-- Sensitivity -->
+                <div class="p-4 bg-red-50 rounded-xl glass-card mb-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                            <h3 class="text-sm font-medium">敏感程度</h3>
+                        </div>
+                        <div class="petal-progress">
+                            <div class="petal active"></div>
+                            <div class="petal active"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">轻度敏感，建议使用温和产品喵～</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations with Enhanced UI -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4">
+            <h2 class="text-base font-medium mb-4 flex items-center">
+                <span class="text-lg mr-2">🐱</span>
+                猫咪的护理建议
+            </h2>
+            <div class="space-y-3">
+                <div class="flex items-center p-4 bg-sakura-100 rounded-xl analysis-card glass-card mb-3">
+                    <div class="w-12 h-12 bg-sakura-300 rounded-lg flex items-center justify-center mr-4 shrink-0">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="text-sm font-medium">加强保湿防护</h3>
+                            <span class="recommendation-tag px-2 py-1 bg-sakura-200 text-sakura-700 text-xs rounded-full">
+                                优先级高
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500">建议使用含玻尿酸的保湿精华，提升肌肤水润度</p>
+                        <div class="mt-2 flex items-center justify-between">
+                            <div class="flex items-center text-xs text-sakura-500">
+                                <i class="fas fa-clock mr-1"></i>
+                                建议立即使用
+                            </div>
+                            <button class="text-xs text-sakura-500 flex items-center">
+                                查看推荐产品
+                                <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center p-3 bg-sakura-100 rounded-lg glass-card mb-3">
+                    <div class="w-10 h-10 bg-sakura-300 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-sun text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-medium">防晒提醒</h3>
+                        <p class="text-xs text-gray-500 mt-1">今日紫外线较强，记得涂防晒喵～</p>
+                    </div>
+                    <button class="text-sakura-500">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="flex items-center p-3 bg-sakura-100 rounded-lg glass-card mb-3">
+                    <div class="w-10 h-10 bg-sakura-300 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-clock text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-medium">护理时间表</h3>
+                        <p class="text-xs text-gray-500 mt-1">查看今日护理时间安排</p>
+                    </div>
+                    <button class="text-sakura-500">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
+        <div class="flex justify-around">
+            <a href="home.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="upload.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-flask text-xl"></i>
+                <span class="text-xs mt-1">产品分析</span>
+            </a>
+            <a href="skinstatus.html" class="flex flex-col items-center text-sakura-500">
+                <i class="fas fa-camera text-xl"></i>
+                <span class="text-xs mt-1">肌肤检测</span>
+            </a>
+            <a href="profile.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+    
+    <script src="navigation.js"></script>
+
+    <script>
+        // Progress ring animation
+        document.querySelectorAll('.progress-ring circle:last-child').forEach(circle => {
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            
+            function setProgress(percent) {
+                const offset = circumference - (percent / 100 * circumference);
+                circle.style.strokeDashoffset = offset;
+            }
+
+            // Animate progress on load
+            const progress = parseInt(circle.parentElement.nextElementSibling.textContent);
+            setTimeout(() => setProgress(progress), 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的喵窝</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            100: '#FFF9FB',
+                            200: '#FFECF2',
+                            300: '#FFD6E5',
+                            400: '#FFBBD0',
+                            500: '#F8BBD0',
+                            600: '#E1BEE7',
+                        },
+                        mint: {
+                            100: '#E8F5E9',
+                            300: '#C8E6C9',
+                        },
+                        gold: {
+                            200: '#FFECB3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .cat-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
+        }
+        .paw-print {
+            position: relative;
+        }
+        .paw-print::before {
+            content: '🐾';
+            position: absolute;
+            opacity: 0.2;
+            transform: rotate(-15deg) scale(0.8);
+            right: 10px;
+            bottom: 5px;
+        }
+        .level-progress {
+            position: relative;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .level-progress::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 75%;
+            background: linear-gradient(90deg, #FFD6E5, #E1BEE7);
+            border-radius: 4px;
+        }
+        .achievement-badge {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        .achievement-badge::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, #FFD6E5, #E1BEE7);
+            border-radius: 12px;
+            opacity: 0.1;
+            transition: opacity 0.3s ease;
+        }
+        .achievement-badge:hover::before {
+            opacity: 0.2;
+        }
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        @keyframes progressFill {
+            from { width: 0; }
+            to { width: var(--progress-width); }
+        }
+        .sparkle {
+            animation: sparkle 2s ease-in-out infinite;
+        }
+        .progress-bar {
+            position: relative;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--progress-width, 0%);
+            background: linear-gradient(90deg, #FFD6E5, #E1BEE7);
+            border-radius: 4px;
+            animation: progressFill 1.5s ease-out;
+        }
+        .achievement-card {
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .achievement-card:hover::before {
+            opacity: 0.1;
+        }
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(248, 187, 208, 0.2);
+        }
+        .cat-stats {
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-stats::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        .level-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        .level-badge::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-sakura-100 min-h-screen pb-20">
+    <!-- Status Bar -->
+    <div class="bg-white px-4 py-1 flex justify-end space-x-2 text-gray-600 text-xs">
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-sakura-500 to-sakura-600 p-4">
+        <div class="flex justify-between items-center">
+            <h1 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-user mr-2"></i>
+                我的喵窝
+            </h1>
+            <button class="text-white">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4">
+        <!-- Profile Card with Enhanced UI -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5">
+            <div class="flex items-center mb-4">
+                <div class="relative">
+                    <img src="https://i.imgur.com/JFHjdNE.png" 
+                         alt="用户头像" 
+                         class="w-20 h-20 rounded-full border-4 border-white shadow-lg">
+                    <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-sakura-400 to-sakura-600 rounded-full flex items-center justify-center text-white text-sm font-medium level-badge">
+                        25
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-lg font-medium">喵喵主人</h2>
+                        <span class="px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs rounded-full flex items-center shadow-lg sparkle">
+                            <i class="fas fa-crown mr-1"></i>
+                            护肤达人
+                        </span>
+                    </div>
+                    <div class="progress-bar mb-2" style="--progress-width: 75%"></div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Lv.25 护肤专家</span>
+                        <span class="text-sakura-500">距离下一级还需 250 经验</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="p-3 bg-gradient-to-br from-sakura-100 to-sakura-200 rounded-lg cat-stats">
+                    <div class="text-lg font-medium text-sakura-500">28</div>
+                    <div class="text-xs text-gray-600">已用产品</div>
+                </div>
+                <div class="p-3 bg-gradient-to-br from-mint-100 to-green-100 rounded-lg cat-stats">
+                    <div class="text-lg font-medium text-green-500">15</div>
+                    <div class="text-xs text-gray-600">护肤天数</div>
+                </div>
+                <div class="p-3 bg-gradient-to-br from-gold-200 to-yellow-100 rounded-lg cat-stats">
+                    <div class="text-lg font-medium text-yellow-600">8</div>
+                    <div class="text-xs text-gray-600">成就徽章</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements with Enhanced UI -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-base font-medium flex items-center">
+                    <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                    我的成就
+                </h2>
+                <span class="text-xs text-gray-500">8/12 已解锁</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="achievement-card p-4 bg-gradient-to-br from-sakura-100 to-white rounded-xl border border-sakura-200">
+                    <div class="w-12 h-12 bg-gradient-to-br from-sakura-400 to-sakura-600 rounded-lg flex items-center justify-center mb-3 sparkle">
+                        <i class="fas fa-star text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-sm font-medium mb-1">护肤达人</h3>
+                    <p class="text-xs text-gray-500">连续使用15天护肤品</p>
+                    <div class="mt-2 flex items-center justify-between">
+                        <span class="text-[10px] text-sakura-500">已获得</span>
+                        <span class="text-[10px] text-yellow-500">
+                            <i class="fas fa-gem mr-1"></i>
+                            +500经验
+                        </span>
+                    </div>
+                </div>
+                <div class="achievement-card p-4 bg-gradient-to-br from-blue-100 to-white rounded-xl border border-sakura-200">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mb-3 sparkle">
+                        <i class="fas fa-tint text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-sm font-medium mb-1">水分满满</h3>
+                    <p class="text-xs text-gray-500">肌肤水分值达到90%</p>
+                    <div class="mt-2 text-[10px] text-sakura-500">已获得</div>
+                </div>
+                <div class="achievement-card p-4 bg-gradient-to-br from-gray-100 to-white rounded-xl border border-sakura-200 opacity-50">
+                    <div class="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg flex items-center justify-center mb-3 sparkle">
+                        <i class="fas fa-calendar-check text-gray-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-sm font-medium mb-1">打卡达人</h3>
+                    <p class="text-xs text-gray-500">连续打卡30天</p>
+                    <div class="mt-2 text-[10px] text-gray-400">进度: 15/30</div>
+                </div>
+                <div class="achievement-card p-4 bg-gradient-to-br from-gold-100 to-white rounded-xl border border-sakura-200 opacity-50">
+                    <div class="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center mb-3 sparkle">
+                        <i class="fas fa-flask text-gray-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-sm font-medium mb-1">产品收藏家</h3>
+                    <p class="text-xs text-gray-500">收集50件护肤品</p>
+                    <div class="mt-2 text-[10px] text-gray-400">进度: 28/50</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Cat with Enhanced UI -->
+
+
+        <!-- Settings Menu with Enhanced UI -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4">
+            <div class="space-y-4">
+                <a href="#" class="flex items-center justify-between p-3 hover:bg-sakura-50 rounded-xl transition-colors group">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bell text-white"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium">消息通知</span>
+                            <p class="text-xs text-gray-500 mt-0.5">管理护肤提醒和系统通知</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#" class="flex items-center justify-between p-3 hover:bg-sakura-50 rounded-xl transition-colors group">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-palette text-white"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium">主题设置</span>
+                            <p class="text-xs text-gray-500 mt-0.5">自定义皮肤和背景</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#" class="flex items-center justify-between p-3 hover:bg-sakura-50 rounded-xl transition-colors group">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-question-circle text-white"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium">帮助与反馈</span>
+                            <p class="text-xs text-gray-500 mt-0.5">提供使用建议和问题反馈</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#" class="flex items-center justify-between p-3 hover:bg-sakura-50 rounded-xl transition-colors group">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-info-circle text-white"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium">关于我们</span>
+                            <p class="text-xs text-gray-500 mt-0.5">了解产品和服务</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around">
+            <a href="home.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="upload.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-flask text-xl"></i>
+                <span class="text-xs mt-1">产品分析</span>
+            </a>
+            <a href="skinstatus.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-camera text-xl"></i>
+                <span class="text-xs mt-1">肌肤检测</span>
+            </a>
+            <a href="profile.html" class="flex flex-col items-center text-sakura-500">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // Achievement hover effect
+        document.querySelectorAll('.achievement-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.querySelector('.sparkle').style.animationDuration = '1s';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.querySelector('.sparkle').style.animationDuration = '2s';
+            });
+        });
+
+        // Progress bar animation
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            const width = bar.style.getPropertyValue('--progress-width');
+            bar.style.setProperty('--progress-width', '0%');
+            setTimeout(() => {
+                bar.style.setProperty('--progress-width', width);
+            }, 100);
+        });
+    </script>
+</body>
+</html> 

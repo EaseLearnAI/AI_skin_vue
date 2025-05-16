@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成分分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .ingredient-tag {
+            position: relative;
+            overflow: hidden;
+        }
+        .ingredient-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        .safety-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .safety-indicator:hover {
+            transform: scale(1.1);
+        }
+        .conflict-warning {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-20">
+    <!-- Status Bar -->
+    <div class="bg-white px-4 py-1 flex justify-end space-x-2 text-gray-600 text-xs">
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4">
+        <div class="flex items-center justify-between">
+            <button onclick="history.back()" class="text-white">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-white">成分分析</h1>
+            <button class="text-white">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4">
+        <!-- Product Info -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex items-start space-x-4">
+                <img src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=200" 
+                     alt="产品图片" 
+                     class="w-24 h-24 rounded-lg object-cover">
+                <div class="flex-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h2 class="text-lg font-medium">COSRX 低pH洁面啫喱</h2>
+                            <p class="text-sm text-gray-500">温和清洁型洗面奶</p>
+                        </div>
+                        <button class="text-emerald-500">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            温和配方
+                        </span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                            <i class="fas fa-tint mr-1"></i>
+                            弱酸性
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Overview -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h3 class="text-base font-medium mb-4">安全性分析</h3>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-emerald-50 p-3 rounded-xl">
+                    <div class="text-2xl font-semibold text-emerald-600 mb-1">95</div>
+                    <div class="text-xs text-gray-600">安全指数</div>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-xl">
+                    <div class="text-2xl font-semibold text-blue-600 mb-1">4.8</div>
+                    <div class="text-xs text-gray-600">功效评分</div>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-xl">
+                    <div class="text-2xl font-semibold text-purple-600 mb-1">12</div>
+                    <div class="text-xs text-gray-600">活性成分</div>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">致痘风险</span>
+                    <div class="flex items-center">
+                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden mr-2">
+                            <div class="w-[10%] h-full bg-green-500 rounded-full"></div>
+                        </div>
+                        <span class="text-xs text-green-500">低</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">刺激风险</span>
+                    <div class="flex items-center">
+                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden mr-2">
+                            <div class="w-[15%] h-full bg-green-500 rounded-full"></div>
+                        </div>
+                        <span class="text-xs text-green-500">低</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">过敏风险</span>
+                    <div class="flex items-center">
+                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden mr-2">
+                            <div class="w-[20%] h-full bg-green-500 rounded-full"></div>
+                        </div>
+                        <span class="text-xs text-green-500">低</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Analysis Summary -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-medium flex items-center">
+                    <i class="fas fa-robot text-purple-500 mr-2"></i>
+                    AI智能解析
+                </h3>
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-sync-alt mr-1"></i>
+                    刚刚更新
+                </div>
+            </div>
+
+            <!-- AI Summary Card -->
+            <div class="space-y-4">
+                <!-- Efficacy Analysis -->
+                <div class="p-4 bg-purple-50 rounded-xl">
+                    <div class="flex items-start mb-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-magic text-purple-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-purple-700 mb-2">功效分析</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">主要功效为温和清洁，适合日常基础清洁使用</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">含有氨基酸表活，清洁力温和不刺激</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">添加泛醇成分，具有一定舒缓功效</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Potential Risks -->
+                <div class="p-4 bg-amber-50 rounded-xl">
+                    <div class="flex items-start mb-3">
+                        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-exclamation-triangle text-amber-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-amber-700 mb-2">潜在风险</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-circle text-amber-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">含有少量香精，敏感肌需要注意是否耐受</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-circle text-amber-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">防腐剂浓度虽在安全范围内，但长期使用需观察</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="p-4 bg-blue-50 rounded-xl">
+                    <div class="flex items-start mb-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-lightbulb text-blue-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-blue-700 mb-2">使用建议</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">建议早晚各使用一次，可搭配温水使用</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">敏感肌第一次使用建议在小面积测试</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                                    <p class="text-sm text-gray-600">如出现不适感，建议立即停用并咨询医生</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Overall Rating -->
+                <div class="p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            <span class="text-sm font-medium">AI综合评分</span>
+                        </div>
+                        <span class="text-lg font-semibold text-purple-600">4.5/5.0</span>
+                    </div>
+                    <p class="text-sm text-gray-600">
+                        总体来说是一款温和的基础清洁产品，适合大多数肤质使用。敏感肌需要谨慎测试，建议从小面积开始尝试。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </main>
+
+    <!-- Action Buttons -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div class="flex space-x-3">
+            <button id="saveProductBtn" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-medium hover:bg-emerald-600 transition-colors">
+                <i class="fas fa-save mr-2"></i>
+                保存到我的产品
+            </button>
+            <button class="flex-1 bg-red-50 text-red-700 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors" onclick="navigateTo('conflict.html')">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                检测冲突
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Tag Modal -->
+    <div id="addTagModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">选择或创建标签</h3>
+                <button id="closeTagModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">选择已有标签:</p>
+                <div id="existingTagsContainer" class="flex flex-wrap gap-2 mb-3">
+                    <!-- Predefined tags will be injected here by JS -->
+                </div>
+            </div>
+            <div class="mb-6">
+                <p class="text-sm text-gray-600 mb-2">或新建标签:</p>
+                <div class="flex items-center">
+                    <input type="text" id="newTagInput" placeholder="例如：保湿面膜" class="flex-grow border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    <button id="addNewTagBtn" class="ml-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors">
+                        <i class="fas fa-plus mr-1"></i> 添加
+                    </button>
+                </div>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">已选标签:</p>
+                <div id="selectedTagsContainer" class="flex flex-wrap gap-2 min-h-[30px] p-2 border border-gray-200 rounded-lg bg-gray-50">
+                    <!-- Selected tags will appear here -->
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button id="cancelTagModalBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="confirmTagModalBtn" class="px-4 py-2 text-sm font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors">
+                    <i class="fas fa-check mr-1"></i> 确认
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const saveProductBtn = document.getElementById('saveProductBtn');
+            const addTagModal = document.getElementById('addTagModal');
+            const closeTagModalBtn = document.getElementById('closeTagModalBtn');
+            const cancelTagModalBtn = document.getElementById('cancelTagModalBtn');
+            const confirmTagModalBtn = document.getElementById('confirmTagModalBtn');
+            const existingTagsContainer = document.getElementById('existingTagsContainer');
+            const newTagInput = document.getElementById('newTagInput');
+            const addNewTagBtn = document.getElementById('addNewTagBtn');
+            const selectedTagsContainer = document.getElementById('selectedTagsContainer');
+
+            const predefinedTags = ['洁面', '化妆水', '精华', '面膜', '防晒'];
+            let currentSelectedTags = [];
+
+            function openModal() {
+                addTagModal.classList.remove('hidden');
+                renderPredefinedTags();
+                renderSelectedTags();
+            }
+
+            function closeModal() {
+                addTagModal.classList.add('hidden');
+            }
+
+            function renderPredefinedTags() {
+                existingTagsContainer.innerHTML = '';
+                predefinedTags.forEach(tag => {
+                    const isSelected = currentSelectedTags.includes(tag);
+                    const tagButton = document.createElement('button');
+                    tagButton.textContent = tag;
+                    tagButton.classList.add('px-3', 'py-1', 'text-sm', 'rounded-full', 'transition-colors');
+                    if (isSelected) {
+                        tagButton.classList.add('bg-emerald-500', 'text-white');
+                    } else {
+                        tagButton.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    }
+                    tagButton.addEventListener('click', () => toggleTagSelection(tag));
+                    existingTagsContainer.appendChild(tagButton);
+                });
+            }
+
+            function renderSelectedTags() {
+                selectedTagsContainer.innerHTML = '';
+                if (currentSelectedTags.length === 0) {
+                    const placeholder = document.createElement('span');
+                    placeholder.textContent = '暂未选择标签';
+                    placeholder.classList.add('text-xs', 'text-gray-400');
+                    selectedTagsContainer.appendChild(placeholder);
+                    return;
+                }
+                currentSelectedTags.forEach(tag => {
+                    const selectedTagChip = document.createElement('div');
+                    selectedTagChip.classList.add('bg-emerald-100', 'text-emerald-700', 'text-xs', 'font-medium', 'px-2.5', 'py-1', 'rounded-full', 'flex', 'items-center');
+                    selectedTagChip.textContent = tag;
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.innerHTML = '<i class="fas fa-times ml-1.5"></i>';
+                    removeBtn.classList.add('text-emerald-700', 'hover:text-emerald-900');
+                    removeBtn.addEventListener('click', () => removeTag(tag));
+                    selectedTagChip.appendChild(removeBtn);
+                    selectedTagsContainer.appendChild(selectedTagChip);
+                });
+            }
+
+            function toggleTagSelection(tag) {
+                const index = currentSelectedTags.indexOf(tag);
+                if (index > -1) {
+                    currentSelectedTags.splice(index, 1); // Remove tag
+                } else {
+                    currentSelectedTags.push(tag); // Add tag
+                }
+                renderPredefinedTags();
+                renderSelectedTags();
+            }
+
+            function addNewTag() {
+                const newTag = newTagInput.value.trim();
+                if (newTag && !currentSelectedTags.includes(newTag)) {
+                    if (!predefinedTags.includes(newTag)) {
+                         // Optionally add to predefinedTags if you want it to persist for future selections in this session
+                         // predefinedTags.push(newTag); 
+                    }
+                    currentSelectedTags.push(newTag);
+                    newTagInput.value = '';
+                    renderPredefinedTags(); // Re-render to update selection status if it was a predefined tag
+                    renderSelectedTags();
+                }
+            }
+            
+            function removeTag(tag) {
+                const index = currentSelectedTags.indexOf(tag);
+                if (index > -1) {
+                    currentSelectedTags.splice(index, 1);
+                }
+                renderPredefinedTags();
+                renderSelectedTags();
+            }
+
+            saveProductBtn.addEventListener('click', openModal);
+            closeTagModalBtn.addEventListener('click', closeModal);
+            cancelTagModalBtn.addEventListener('click', closeModal);
+            addNewTagBtn.addEventListener('click', addNewTag);
+            newTagInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    addNewTag();
+                }
+            });
+
+            confirmTagModalBtn.addEventListener('click', () => {
+                // Here you would typically save the currentSelectedTags with the product
+                console.log('Selected tags:', currentSelectedTags);
+                // For now, just close the modal
+                alert('产品标签已保存 (模拟): ' + currentSelectedTags.join(', '));
+                closeModal();
+            });
+        });
+    </script>
+</body>
+</html>
