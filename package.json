@@ -1,5 +1,9 @@
 {
   "devDependencies": {
-    "@babel/preset-env": "^7.27.2"
+    "@babel/preset-env": "^7.27.2",
+    "canvas": "^3.1.0"
+  },
+  "dependencies": {
+    "colors": "^1.4.0"
   }
 }

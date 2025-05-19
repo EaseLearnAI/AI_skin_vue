@@ -1,6 +1,6 @@
 <template>
   <div class="skinstatus-view">
-    <StatusBar />
+
     
     <AppHeader 
       title="肌肤检测" 
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import StatusBar from '@/components/common/StatusBar.vue'
+
 import AppHeader from '@/components/common/AppHeader.vue'
 import BottomNavigation from '@/components/common/BottomNavigation.vue'
 import SkinCamera from '@/components/skinstatus/SkinCamera.vue'
@@ -65,7 +65,6 @@ import SkinRecommendations from '@/components/skinstatus/SkinRecommendations.vue
 export default {
   name: 'SkinStatusView',
   components: {
-    StatusBar,
     AppHeader,
     BottomNavigation,
     SkinCamera,

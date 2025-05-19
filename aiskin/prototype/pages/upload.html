@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫窝产品库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            100: '#FFF9FB',
+                            200: '#FFECF2',
+                            300: '#FFD6E5',
+                            400: '#FFBBD0',
+                            500: '#F8BBD0',
+                            600: '#E1BEE7',
+                        },
+                        mint: {
+                            100: '#E8F5E9',
+                            300: '#C8E6C9',
+                        },
+                        gold: {
+                            200: '#FFECB3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .cat-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
+            transition: all 0.3s ease;
+        }
+        .cat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.25);
+        }
+        .paw-print {
+            position: relative;
+        }
+        .paw-print::before {
+            content: '🐾';
+            position: absolute;
+            opacity: 0.2;
+            transform: rotate(-15deg) scale(0.8);
+            right: 10px;
+            bottom: 5px;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .heartbeat {
+            animation: heartbeat 1s infinite;
+        }
+        .cat-eyes-scan {
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-eyes-scan::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, transparent, rgba(248, 187, 208, 0.5), transparent);
+            top: 0;
+            left: -100%;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; left: -100%; }
+            100% { top: 100%; left: 100%; }
+        }
+        .cherry-blossom {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle at 30% 30%, #F8BBD0 0%, #E1BEE7 100%);
+            border-radius: 15px 0px 15px 0px;
+            opacity: 0;
+            transform: rotate(45deg);
+            z-index: 10;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(45deg); opacity: 0.8; }
+            50% { transform: translateY(20px) translateX(20px) rotate(90deg); opacity: 0.9; }
+            100% { transform: translateY(100px) translateX(-10px) rotate(225deg); opacity: 0; }
+        }
+        /* 隐藏滚动条但保留滚动功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 产品列表滚动区域 */
+        .product-list-container {
+            max-height: calc(100vh - 350px);
+            overflow-y: auto;
+        }
+        /* 产品卡片玻璃拟态效果 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(248, 187, 208, 0.2);
+        }
+        /* 标签样式优化 */
+        .product-tag {
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        .product-tag:hover {
+            transform: scale(1.05);
+        }
+        /* 按钮波纹效果 */
+        .ripple-button {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.8s;
+        }
+        .ripple-button:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body class="bg-sakura-100 min-h-screen pb-20">
+    <!-- Status Bar -->
+    <div class="bg-white px-4 py-1 flex justify-end space-x-2 text-gray-600 text-xs">
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-sakura-500 to-sakura-600 p-4">
+        <div class="flex justify-between items-center mb-4">
+            <a href="home.html" class="text-white">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-paw mr-2"></i>
+                猫窝产品库
+            </h1>
+            <button class="text-white">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+        <!-- Search Bar -->
+        <div class="relative">
+            <input type="search" 
+                   placeholder="在猫窝搜索已添加的产品喵～" 
+                   class="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/50 shadow-md">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4">
+        <!-- Add New Product Section -->
+        <div class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5">
+            <h3 class="text-base font-medium mb-3 flex items-center">
+                <i class="fas fa-plus-circle mr-2 text-sakura-500"></i>
+                添加新产品到猫窝
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="flex flex-col items-center justify-center p-4 bg-sakura-100 rounded-xl hover:bg-sakura-200 transition-colors shadow-md ripple-button">
+                    <div class="w-12 h-12 bg-gradient-to-br from-sakura-400 to-sakura-600 rounded-full flex items-center justify-center mb-2">
+                        <i class="fas fa-camera text-white text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium">添加产品</span>
+                    <p class="text-xs text-gray-500 mt-1">猫眼扫描成分</p>
+                </button>
+                <button class="flex flex-col items-center justify-center p-4 bg-sakura-100 rounded-xl hover:bg-sakura-200 transition-colors shadow-md ripple-button">
+                    <div class="w-12 h-12 bg-gradient-to-br from-sakura-400 to-sakura-600 rounded-full flex items-center justify-center mb-2">
+                        <i class="fas fa-image text-white text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium">产品冲突成分检测</span>
+                    <p class="text-xs text-gray-500 mt-1">检测产品成分间潜在冲突</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State (only shown when no products) -->
+        <div id="emptyState" class="bg-white rounded-[16px] shadow-lg cat-card p-4 mb-5 hidden">
+            <div class="flex flex-col items-center p-6">
+                <img src="https://i.imgur.com/QkIa5tS.png" alt="空猫窝" class="w-40 h-40 object-contain mb-4 float-animation">
+                <div class="bg-sakura-200 rounded-xl p-3 relative max-w-xs">
+                    <p class="text-sm text-center">猫窝还是空的喵～快来添加你的第一个护肤品吧！</p>
+                    <div class="absolute w-4 h-4 bg-sakura-200 transform rotate-45 -top-2 left-1/2 -ml-2"></div>
+                </div>
+                <button class="mt-6 bg-sakura-500 text-white py-2 px-6 rounded-full flex items-center text-sm">
+                    <i class="fas fa-camera mr-2"></i>
+                    开始添加产品
+                </button>
+            </div>
+        </div>
+
+        <!-- My Products Section -->
+        <div class="mb-5">
+            <!-- Conflict Detection Mode Button -->
+            <button id="conflictModeBtn" class="w-full mb-4 bg-gradient-to-r from-sakura-400 to-sakura-600 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center space-x-2">
+                <i class="fas fa-flask-vial text-xl mr-2"></i>
+                <span class="font-medium">开启成分冲突检测</span>
+                <div class="relative ml-2">
+                    <input type="checkbox" id="selectionMode" class="sr-only">
+                    <div class="w-12 h-6 bg-white/30 rounded-full relative">
+                        <div class="absolute inset-y-0 left-0 w-6 h-6 bg-white rounded-full shadow transform transition-transform duration-300 conflict-toggle-dot"></div>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Category Filters -->
+            <div class="flex overflow-x-auto pb-2 mb-3 space-x-2 no-scrollbar">
+                <button class="px-3 py-1.5 bg-sakura-500 text-white text-xs rounded-full flex-shrink-0 whitespace-nowrap">
+                    全部产品
+                </button>
+                <button class="px-3 py-1.5 bg-white text-gray-600 text-xs rounded-full flex-shrink-0 whitespace-nowrap flex items-center">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                    洁面
+                </button>
+                <button class="px-3 py-1.5 bg-white text-gray-600 text-xs rounded-full flex-shrink-0 whitespace-nowrap flex items-center">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                    化妆水
+                </button>
+                <button class="px-3 py-1.5 bg-white text-gray-600 text-xs rounded-full flex-shrink-0 whitespace-nowrap flex items-center">
+                    <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                    精华
+                </button>
+                <button class="px-3 py-1.5 bg-white text-gray-600 text-xs rounded-full flex-shrink-0 whitespace-nowrap flex items-center">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-1"></span>
+                    面膜
+                </button>
+                <button class="px-3 py-1.5 bg-white text-gray-600 text-xs rounded-full flex-shrink-0 whitespace-nowrap flex items-center">
+                    <span class="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                    防晒
+                </button>
+            </div>
+
+            <!-- Product List -->
+            <div class="space-y-4 product-list-container no-scrollbar">
+                <!-- Product Card -->
+                <div class="bg-white rounded-xl shadow-sm p-4 glass-card mb-3">
+                    <div class="flex items-start">
+                        <div class="w-5 h-5 mr-3 flex items-center justify-center mt-1 product-checkbox">
+                            <input type="checkbox" class="w-4 h-4 text-sakura-500 bg-gray-100 border-gray-300 rounded focus:ring-sakura-500 hidden multi-select">
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=100" 
+                             alt="COSRX 低pH洁面啫喱" 
+                             class="w-16 h-16 rounded-lg object-cover mr-3 cat-eyes-scan">
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h3 class="text-sm font-medium">COSRX 低pH洁面啫喱</h3>
+                                <div class="flex items-center">
+                                    <div class="px-1.5 py-0.5 bg-mint-300 text-green-700 text-[10px] rounded-sm mr-1 flex items-center">
+                                        <span>95</span>
+                                        <span class="ml-0.5">安全</span>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-sakura-500 transition-colors">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">温和无泡洁面乳，氨基酸系</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded-full product-tag">洁面</span>
+                                    <span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full product-tag">氨基酸</span>
+                                </div>
+                                <span class="text-xs text-gray-400">06-01开封</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card -->
+                <div class="bg-white rounded-xl shadow-sm p-4 glass-card mb-3">
+                    <div class="flex items-start">
+                        <div class="w-5 h-5 mr-3 flex items-center justify-center mt-1 product-checkbox">
+                            <input type="checkbox" class="w-4 h-4 text-sakura-500 bg-gray-100 border-gray-300 rounded focus:ring-sakura-500 hidden multi-select">
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=100" 
+                             alt="The Ordinary 维生素C精华" 
+                             class="w-16 h-16 rounded-lg object-cover mr-3 cat-eyes-scan">
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h3 class="text-sm font-medium">The Ordinary 维生素C精华</h3>
+                                <div class="flex items-center">
+                                    <div class="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-[10px] rounded-sm mr-1 flex items-center">
+                                        <span>80</span>
+                                        <span class="ml-0.5">中等</span>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-sakura-500 transition-colors">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">高浓度抗氧化精华，美白提亮</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-[10px] rounded-full product-tag">精华</span>
+                                    <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[10px] rounded-full product-tag">维C</span>
+                                </div>
+                                <span class="text-xs text-gray-400">05-15开封</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card -->
+                <div class="bg-white rounded-xl shadow-sm p-4 glass-card mb-3">
+                    <div class="flex items-start">
+                        <div class="w-5 h-5 mr-3 flex items-center justify-center mt-1 product-checkbox">
+                            <input type="checkbox" class="w-4 h-4 text-sakura-500 bg-gray-100 border-gray-300 rounded focus:ring-sakura-500 hidden multi-select">
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1601612628452-9e99ced43524?w=100" 
+                             alt="理肤泉特安舒缓保湿霜" 
+                             class="w-16 h-16 rounded-lg object-cover mr-3 cat-eyes-scan">
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h3 class="text-sm font-medium">理肤泉特安舒缓保湿霜</h3>
+                                <div class="flex items-center">
+                                    <div class="px-1.5 py-0.5 bg-mint-300 text-green-700 text-[10px] rounded-sm mr-1 flex items-center">
+                                        <span>98</span>
+                                        <span class="ml-0.5">安全</span>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-sakura-500 transition-colors">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">舒缓敏感肌肤，深度保湿</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full product-tag">面霜</span>
+                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded-full product-tag">保湿</span>
+                                </div>
+                                <span class="text-xs text-gray-400">06-10开封</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Routine -->
+
+    </main>
+
+    <!-- Quick Conflict Check Button -->
+    <div class="fixed bottom-24 right-4 z-50">
+        <button onclick="checkConflicts()" class="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 transition-all transform hover:scale-105 ripple-button">
+            <i class="fas fa-exclamation-triangle text-xl"></i>
+        </button>
+        <div class="absolute -top-2 -right-2 w-5 h-5 bg-yellow-500 rounded-full text-white text-xs flex items-center justify-center conflict-counter">0</div>
+    </div>
+
+    <!-- Conflict Detection Modal -->
+    <div id="conflictModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-h-[80vh] overflow-y-auto bg-white rounded-2xl p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">检测到潜在冲突</h3>
+                <button onclick="closeConflictModal()" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="conflictList" class="space-y-3">
+                <!-- Conflicts will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
+        <div class="flex justify-around">
+            <a href="home.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="upload.html" class="flex flex-col items-center text-sakura-500">
+                <i class="fas fa-flask text-xl"></i>
+                <span class="text-xs mt-1">产品分析</span>
+            </a>
+            <a href="skinstatus.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-camera text-xl"></i>
+                <span class="text-xs mt-1">肌肤检测</span>
+            </a>
+            <a href="profile.html" class="flex flex-col items-center text-gray-400 hover:text-sakura-500 transition-colors">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <script src="navigation.js"></script>
+    <!-- JavaScript for interactions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectionMode = document.getElementById('selectionMode');
+            const conflictModeBtn = document.getElementById('conflictModeBtn');
+            const checkboxes = document.querySelectorAll('.multi-select');
+            const conflictButton = document.getElementById('conflictActionButton');
+            const toggleDot = document.querySelector('.conflict-toggle-dot');
+            
+            // Toggle conflict detection mode
+            conflictModeBtn.addEventListener('click', function() {
+                selectionMode.checked = !selectionMode.checked;
+                if (selectionMode.checked) {
+                    // Show checkboxes for multi-select
+                    checkboxes.forEach(checkbox => checkbox.classList.remove('hidden'));
+                    toggleDot.style.transform = 'translateX(24px)';
+                    conflictModeBtn.querySelector('span').textContent = '关闭成分冲突检测';
+                    conflictModeBtn.classList.add('active');
+                    // Add shimmer effect
+                    conflictModeBtn.style.backgroundImage = 'linear-gradient(45deg, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent)';
+                    conflictModeBtn.style.backgroundSize = '100% 100%, 30px 30px';
+                    conflictModeBtn.style.animation = 'shimmer 2s linear infinite';
+                } else {
+                    // Hide checkboxes and conflict button
+                    checkboxes.forEach(checkbox => {
+                        checkbox.classList.add('hidden');
+                        checkbox.checked = false;
+                    });
+                    toggleDot.style.transform = 'translateX(0)';
+                    conflictModeBtn.querySelector('span').textContent = '开启成分冲突检测';
+                    conflictModeBtn.classList.remove('active');
+                    // Remove shimmer effect
+                    conflictModeBtn.style.backgroundImage = 'linear-gradient(45deg, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%)';
+                    conflictModeBtn.style.animation = 'none';
+                }
+            });
+            
+            // Add shimmer animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shimmer {
+                    0% { background-position: 0 0, 0 0; }
+                    100% { background-position: 0 0, 60px 0; }
+                }
+                #conflictModeBtn.active {
+                    background-color: #F8BBD0;
+                    box-shadow: 0 0 15px rgba(248, 187, 208, 0.5);
+                }
+                #conflictModeBtn.active:hover {
+                    transform: scale(1.03);
+                    box-shadow: 0 0 20px rgba(248, 187, 208, 0.6);
+                }
+                .conflict-toggle-dot {
+                    transition: transform 0.3s ease;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Handle checkbox changes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkedBoxes = document.querySelectorAll('.multi-select:checked');
+                    if (checkedBoxes.length >= 2) {
+                        conflictButton.classList.remove('hidden');
+                        conflictButton.querySelector('span').textContent = `检测${checkedBoxes.length}个产品冲突`;
+                    } else {
+                        conflictButton.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Floating cherry blossom animation for product added success
+            function createCherryBlossom() {
+                const blossom = document.createElement('div');
+                blossom.classList.add('cherry-blossom');
+                
+                // Random position
+                blossom.style.left = Math.random() * window.innerWidth + 'px';
+                
+                // Random animation duration
+                const duration = Math.random() * 3 + 2;  // 2-5 seconds
+                blossom.style.animation = `fall ${duration}s linear forwards`;
+                
+                document.body.appendChild(blossom);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    document.body.removeChild(blossom);
+                }, duration * 1000);
+            }
+            
+            // Demo: Create blossoms when clicking add buttons
+            const addButtons = document.querySelectorAll('.bg-sakura-100');
+            addButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    for (let i = 0; i < 10; i++) {
+                        setTimeout(() => createCherryBlossom(), i * 300);
+                    }
+                });
+            });
+        });
+
+        // Product database with ingredients
+        const products = {
+            'COSRX 低pH洁面啫喱': {
+                ingredients: ['水', '甘油', '泛醇'],
+                type: 'cleanser'
+            },
+            'The Ordinary 维生素C精华': {
+                ingredients: ['维生素C', '透明质酸'],
+                type: 'serum'
+            },
+            'Some By Mi AHA精华': {
+                ingredients: ['水杨酸', 'AHA'],
+                type: 'exfoliant'
+            }
+        };
+
+        // Conflict rules
+        const conflictRules = {
+            '维生素C': {
+                conflicts: ['烟酰胺'],
+                reason: '这两种成分会互相影响效果',
+                solution: '建议早晚分开使用'
+            },
+            'AHA': {
+                conflicts: ['维生素C', 'BHA'],
+                reason: '可能导致过度刺激',
+                solution: '建议隔天使用'
+            }
+        };
+
+        let selectedProducts = [];
+
+        function addProduct(name) {
+            if (!selectedProducts.includes(name)) {
+                selectedProducts.push(name);
+                updateConflictCounter();
+                checkConflicts();
+            }
+        }
+
+        function updateConflictCounter() {
+            const conflicts = getConflicts();
+            document.querySelector('.conflict-counter').textContent = conflicts.length;
+            if (conflicts.length > 0) {
+                document.querySelector('.conflict-counter').classList.add('animate-pulse');
+            }
+        }
+
+        function getConflicts() {
+            let conflicts = [];
+            selectedProducts.forEach((product1, i) => {
+                const ingredients1 = products[product1].ingredients;
+                selectedProducts.slice(i + 1).forEach(product2 => {
+                    const ingredients2 = products[product2].ingredients;
+                    ingredients1.forEach(ing1 => {
+                        if (conflictRules[ing1] && ingredients2.some(ing2 => 
+                            conflictRules[ing1].conflicts.includes(ing2))) {
+                            conflicts.push({
+                                products: [product1, product2],
+                                rule: conflictRules[ing1]
+                            });
+                        }
+                    });
+                });
+            });
+            return conflicts;
+        }
+
+        function checkConflicts() {
+            const conflicts = getConflicts();
+            if (conflicts.length > 0) {
+                showConflictModal(conflicts);
+            }
+        }
+
+        function showConflictModal(conflicts) {
+            const modal = document.getElementById('conflictModal');
+            const list = document.getElementById('conflictList');
+            list.innerHTML = conflicts.map(conflict => `
+                <div class="bg-red-50 p-4 rounded-xl relative">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-red-700 mb-1">
+                                ${conflict.products.join(' + ')}
+                            </h4>
+                            <p class="text-xs text-red-600">${conflict.rule.reason}</p>
+                            <div class="mt-2 p-2 bg-white/60 backdrop-blur rounded-lg">
+                                <p class="text-xs text-gray-600">
+                                    <i class="fas fa-lightbulb text-yellow-500 mr-1"></i>
+                                    ${conflict.rule.solution}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            modal.classList.remove('hidden');
+        }
+
+        function closeConflictModal() {
+            document.getElementById('conflictModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

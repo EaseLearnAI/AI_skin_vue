@@ -29,61 +29,127 @@ axios.interceptors.response.use(
   }
 )
 
+/**
+ * Auth Service
+ * Handles user authentication and token management
+ */
 const authService = {
-  // 用户注册
-  register(userData) {
-    return axios.post(`${API_URL}/users/register`, userData)
-      .then(response => {
-        if (response.data.success) {
-          localStorage.setItem('token', response.data.token)
-          localStorage.setItem('user', JSON.stringify(response.data.data.user))
-        }
-        return response.data
-      })
-  },
-
-  // 用户登录
+  /**
+   * Login user
+   * @param {Object} credentials - User credentials (email, password)
+   * @returns {Promise} - API response
+   */
   login(credentials) {
+    console.log('🔐 Auth Request: Login', { email: credentials.email });
     return axios.post(`${API_URL}/users/login`, credentials)
       .then(response => {
         if (response.data.success) {
-          localStorage.setItem('token', response.data.token)
-          if (credentials.remember) {
-            localStorage.setItem('user', JSON.stringify(response.data.data.user))
-          } else {
-            sessionStorage.setItem('user', JSON.stringify(response.data.data.user))
-          }
+          // Store token and user data
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.data.user));
+          
+          // Set Authorization header for future requests
+          axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
         }
-        return response.data
-      })
+        return response.data;
+      });
   },
 
-  // 获取当前登录用户信息
-  getCurrentUser() {
-    return axios.get(`${API_URL}/users/me`)
-      .then(response => response.data)
+  /**
+   * Register new user
+   * @param {Object} userData - User registration data
+   * @returns {Promise} - API response
+   */
+  register(userData) {
+    console.log('🔐 Auth Request: Register', { email: userData.email, name: userData.name });
+    return axios.post(`${API_URL}/users/register`, userData)
+      .then(response => {
+        if (response.data.success) {
+          // Store token and user data
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.data.user));
+          
+          // Set Authorization header for future requests
+          axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+        }
+        return response.data;
+      });
   },
 
-  // 用户登出
+  /**
+   * Logout user
+   */
   logout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    sessionStorage.removeItem('user')
-  },
-
-  // 检查是否已登录
-  isAuthenticated() {
-    return !!localStorage.getItem('token')
-  },
-
-  // 获取已存储的用户信息
-  getUser() {
-    const localUser = localStorage.getItem('user')
-    const sessionUser = sessionStorage.getItem('user')
-    const userStr = localUser || sessionUser
+    // Remove token and user data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     
-    return userStr ? JSON.parse(userStr) : null
+    // Remove Authorization header
+    delete axios.defaults.headers.common['Authorization'];
+  },
+
+  /**
+   * Check if user is authenticated
+   * @returns {Boolean} - Authentication status
+   */
+  isAuthenticated() {
+    const token = localStorage.getItem('token');
+    return !!token;
+  },
+
+  /**
+   * Get current user from local storage
+   * @returns {Object|null} - Current user data or null
+   */
+  getCurrentUser() {
+    try {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch (error) {
+      console.error('Error parsing user data', error);
+      return null;
+    }
+  },
+
+  /**
+   * Fetch current user from API
+   * @returns {Promise} - API response with user data
+   */
+  fetchCurrentUser() {
+    return axios.get(`${API_URL}/users/profile`)
+      .then(response => {
+        if (response.data.success) {
+          // Update stored user data
+          localStorage.setItem('user', JSON.stringify(response.data.data.user));
+        }
+        return response.data;
+      })
+      .catch(error => {
+        console.error('Error fetching user profile', error);
+        return { success: false, message: 'Failed to fetch user profile' };
+      });
+  },
+
+  /**
+   * Get current token
+   * @returns {String|null} - JWT token or null
+   */
+  getToken() {
+    return localStorage.getItem('token');
+  },
+
+  /**
+   * Setup auth header for axios
+   */
+  setupAuthHeader() {
+    const token = this.getToken();
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
   }
 }
+
+// Setup auth header on service initialization
+authService.setupAuthHeader();
 
 export default authService 

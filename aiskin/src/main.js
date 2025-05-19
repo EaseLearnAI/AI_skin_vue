@@ -17,8 +17,16 @@ import {
   faShieldAlt, faChevronRight, faTint, faOilCan, 
   faExclamationCircle, faFlaskVial, faHistory,
   faQuestionCircle, faCog, faEnvelope, faLock,
-  faEye, faEyeSlash, faSpinner
+  faEye, faEyeSlash, faSpinner, faRobot, faMagic,
+  faLightbulb, faStar, faInfoCircle, faCheckCircle,
+  faUpload, faSyncAlt, faTrashAlt, faPlus, 
+  faQrcode, faCalendarCheck, faWandMagicSparkles
 } from '@fortawesome/free-solid-svg-icons'
+
+// Import regular icons
+import {
+  faCircle as farCircle
+} from '@fortawesome/free-regular-svg-icons'
 
 // Add icons to the library
 library.add(
@@ -31,7 +39,11 @@ library.add(
   faShieldAlt, faChevronRight, faTint, faOilCan, 
   faExclamationCircle, faFlaskVial, faHistory,
   faQuestionCircle, faCog, faEnvelope, faLock,
-  faEye, faEyeSlash, faSpinner
+  faEye, faEyeSlash, faSpinner, faRobot, faMagic,
+  faLightbulb, faStar, faInfoCircle, faCheckCircle,
+  faUpload, faSyncAlt, faTrashAlt, faPlus,
+  faQrcode, faCalendarCheck, faWandMagicSparkles,
+  farCircle
 )
 
 // Import Views
@@ -42,6 +54,7 @@ import SkinStatusView from './views/SkinStatusView.vue'
 import ProfileView from './views/ProfileView.vue'
 import LoginView from './views/LoginView.vue'
 import RegisterView from './views/RegisterView.vue'
+import IngredientView from './views/IngredientView.vue'
 
 // Create router
 const routes = [
@@ -68,6 +81,11 @@ const routes = [
   { 
     path: '/profile', 
     component: ProfileView,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/ingredient/:id', 
+    component: IngredientView,
     meta: { requiresAuth: true }
   },
   { 

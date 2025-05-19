@@ -2,15 +2,18 @@
   <header class="app-header" :class="[bgColor]">
     <div class="header-content">
       <div v-if="showBackButton" @click="goBack" class="back-button">
-        <i class="fas fa-arrow-left"></i>
+        <font-awesome-icon :icon="['fas', 'arrow-left']" />
       </div>
-      <h1 class="title">
-        <i v-if="icon" :class="['fas', `fa-${icon}`]" class="title-icon"></i>
-        {{ title }}
-      </h1>
+      <div class="title-container">
+        <h1 class="title">
+          <font-awesome-icon v-if="icon" :icon="['fas', icon]" class="title-icon" />
+          {{ title }}
+        </h1>
+      </div>
       <div v-if="rightIcon" class="right-action">
-        <i :class="['fas', `fa-${rightIcon}`]"></i>
+        <font-awesome-icon :icon="['fas', rightIcon]" />
       </div>
+      <div v-else class="right-placeholder"></div>
     </div>
     <slot></slot>
   </header>
@@ -71,19 +74,45 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .back-button {
   color: white;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
+}
+
+.title-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .title {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: white;
   display: flex;
   align-items: center;
+  justify-content: center;
+  margin: 0;
+  pointer-events: auto;
 }
 
 .title-icon {
@@ -92,5 +121,22 @@ export default {
 
 .right-action {
   color: white;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.right-action:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.right-placeholder {
+  width: 36px;
 }
 </style> 

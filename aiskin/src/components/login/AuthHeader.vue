@@ -1,6 +1,6 @@
 <template>
   <div class="auth-header">
-    <StatusBar />
+
     
     <div class="header-content" :class="bgColor">
       <div class="back-button" v-if="showBackButton" @click="goBack">
@@ -21,12 +21,12 @@
 </template>
 
 <script>
-import StatusBar from '@/components/common/StatusBar.vue'
+
 
 export default {
   name: 'AuthHeader',
   components: {
-    StatusBar
+
   },
   props: {
     title: {
