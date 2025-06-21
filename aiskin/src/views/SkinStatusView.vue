@@ -51,6 +51,24 @@
     </main>
 
     <BottomNavigation />
+    
+    <!-- 开发中提示弹窗 -->
+    <div class="modal" v-if="showDevelopmentModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>功能开发中</h3>
+          <button class="close-btn" @click="showDevelopmentModal = false">
+            <font-awesome-icon icon="times" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>皮肤状态检测功能正在开发中，敬请期待！</p>
+        </div>
+        <div class="modal-footer">
+          <button class="confirm-btn" @click="showDevelopmentModal = false">确定</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -73,6 +91,7 @@ export default {
   },
   data() {
     return {
+      showDevelopmentModal: true,
       imageSelected: false,
       selectedImage: null,
       selectedFile: null,
@@ -236,4 +255,84 @@ export default {
   background-color: #f5f5f5;
   color: #757575;
 }
-</style> 
+
+/* 弹窗样式 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 500px;
+  background-color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #999;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: 1rem;
+  color: #666;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f5f5f5;
+}
+
+.confirm-btn {
+  padding: 0.75rem 2rem;
+  background-color: #F8BBD0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn:hover {
+  background-color: #d63384;
+}
+</style>

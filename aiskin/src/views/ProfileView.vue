@@ -85,7 +85,7 @@
             </div>
           </div>
           
-          <div class="menu-item" @click="goToSettings">
+          <!-- <div class="menu-item" @click="goToSettings">
             <div class="menu-icon">
               <font-awesome-icon :icon="['fas', 'cog']" />
             </div>
@@ -95,11 +95,11 @@
             <div class="menu-action">
               <font-awesome-icon :icon="['fas', 'chevron-right']" />
             </div>
-          </div>
+          </div> -->
           
-          <div class="menu-item logout-item" @click="confirmLogout">
-            <div class="menu-icon logout-icon">
-              <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
+          <div class="menu-item" @click="confirmLogout">
+            <div class="menu-icon">
+              <font-awesome-icon :icon="['fas', 'cog']" />
             </div>
             <div class="menu-content">
               <span class="menu-title">退出登录</span>
@@ -440,14 +440,12 @@ export default {
         })
         
         // 无论API是否成功，都清除本地存储并跳转到登录页
-        authService.removeToken()
-        authService.removeCurrentUser()
+        authService.logout()
         this.$router.push('/login')
       } catch (error) {
         console.error('退出登录失败', error)
         // 即使API失败，也执行登出操作
-        authService.removeToken()
-        authService.removeCurrentUser()
+        authService.logout()
         this.$router.push('/login')
       }
     },
@@ -872,4 +870,4 @@ textarea.form-control {
     width: 95%;
   }
 }
-</style> 
+</style>

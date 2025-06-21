@@ -1,6 +1,7 @@
 import axios from 'axios'
+import apiConfig from '../api/config'
 
-const API_URL = 'http://localhost:5000/api'
+const API_URL = apiConfig.API_URL
 
 // 请求拦截器，添加 token 到所有请求
 axios.interceptors.request.use(
@@ -112,6 +113,18 @@ const authService = {
   },
 
   /**
+   * Set current user to local storage
+   * @param {Object} userData - User data to store
+   */
+  setCurrentUser(userData) {
+    try {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error storing user data', error);
+    }
+  },
+
+  /**
    * Fetch current user from API
    * @returns {Promise} - API response with user data
    */
@@ -152,4 +165,4 @@ const authService = {
 // Setup auth header on service initialization
 authService.setupAuthHeader();
 
-export default authService 
+export default authService
