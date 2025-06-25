@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI肌肤检测报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            50: '#FEF7F0',
+                            100: '#FFF9FB',
+                            200: '#FFECF2',
+                            300: '#FFD6E5',
+                            400: '#FFBBD0',
+                            500: '#F8BBD0',
+                            600: '#E1BEE7',
+                            700: '#C48B9F',
+                            800: '#A67C8A',
+                            900: '#8B5A6B'
+                        },
+                        mint: {
+                            50: '#F0FDF4',
+                            100: '#E8F5E9',
+                            200: '#D1FAE5',
+                            300: '#C8E6C9',
+                            400: '#86EFAC',
+                            500: '#4ADE80',
+                            600: '#22C55E'
+                        },
+                        gold: {
+                            100: '#FEF3C7',
+                            200: '#FFECB3',
+                            300: '#FDE68A',
+                            400: '#FBBF24',
+                            500: '#F59E0B'
+                        },
+                        ocean: {
+                            50: '#F0F9FF',
+                            100: '#E0F2FE',
+                            200: '#BAE6FD',
+                            300: '#7DD3FC',
+                            400: '#38BDF8',
+                            500: '#0EA5E9',
+                            600: '#0284C7'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'sans-serif']
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem'
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.04)',
+                        'strong': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 20px 50px -10px rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* iPhone 16 Pro Max 适配 */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            max-width: 430px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #FEF7F0 0%, #FFF9FB 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 设备边框模拟 */
+        .device-frame {
+            border-radius: 2.5rem;
+            overflow: hidden;
+            box-shadow: 0 0 0 8px #1a1a1a, 0 0 0 10px #333, 0 20px 40px rgba(0,0,0,0.3);
+            background: #000;
+            padding: 2px;
+        }
+        
+        .screen-content {
+            border-radius: 2.3rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #FEF7F0 0%, #FFF9FB 100%);
+        }
+        
+        /* 动画效果 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes progressFill {
+            from { width: 0%; }
+        }
+        
+        /* 卡片样式 */
+        .modern-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .modern-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: rgba(248, 187, 208, 0.3);
+        }
+        
+        /* 渐变背景 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #F8BBD0 0%, #E1BEE7 50%, #C8E6C9 100%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #F8BBD0, #E1BEE7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 进度环样式 */
+        .progress-ring {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 4px 8px rgba(248, 187, 208, 0.3));
+        }
+        
+        .progress-ring circle {
+            transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* 数据可视化 */
+        .data-viz {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .data-viz::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+        
+        /* 进度条增强 */
+        .enhanced-progress {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+        }
+        
+        /* 按钮样式 */
+        .modern-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modern-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modern-button:active {
+            transform: translateY(0);
+        }
+        
+        /* 图标动画 */
+        .icon-bounce {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* 分数动画 */
+        .score-animation {
+            animation: scaleIn 1s ease-out;
+        }
+        
+        /* 标签样式 */
+        .modern-tag {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .modern-tag:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 430px) {
+            body {
+                max-width: 100%;
+            }
+            
+            .device-frame {
+                border-radius: 0;
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .screen-content {
+                border-radius: 0;
+            }
+        }
+        
+        /* 滚动条隐藏 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 玻璃拟态增强 */
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        /* 动态阴影 */
+        .dynamic-shadow {
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .dynamic-shadow:hover {
+            box-shadow: 0 20px 40px rgba(248, 187, 208, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-sakura-100 min-h-screen pb-20">
+    
+    <div class="device-frame">
+        
+        <div class="screen-content">
+            <!-- Status Bar -->
+             
+
+    <!-- Header -->
+     
+    <header class="bg-gradient-to-r from-sakura-500 to-sakura-600 p-4">
+        <div class="flex items-center justify-between">
+            <button onclick="history.back()" class="text-white">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-camera mr-2"></i>
+                肌肤检测
+            </h1>
+            <button class="text-white">
+                <i class="fas fa-history"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4">
+        <!-- AI Skin Detection Welcome Card -->
+        <div class="modern-card bg-gradient-to-br from-white via-sakura-50 to-mint-50 p-6 mb-6 relative overflow-hidden">
+            <!-- Background decoration -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-sakura-200/30 to-transparent rounded-full transform translate-x-16 -translate-y-16"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-mint-200/30 to-transparent rounded-full transform -translate-x-12 translate-y-12"></div>
+            
+            <!-- Welcome message -->
+            <div class="text-center mb-6 relative z-10">
+
+               
+                <p class="text-lg font-medium text-sakura-600 mb-1">让我来看看你的肌肤状态喵～</p>
+
+            </div>
+            
+            <!-- Detection options -->
+            <div class="grid grid-cols-2 gap-4 relative z-10">
+                <button class="group modern-button flex flex-col items-center justify-center p-6 bg-gradient-to-br from-sakura-100 to-sakura-200 rounded-2xl hover:from-sakura-200 hover:to-sakura-300 transition-all duration-300 border border-sakura-200/50">
+                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3 shadow-md group-hover:shadow-lg transition-shadow">
+                        <i class="fas fa-camera text-sakura-500 text-xl group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="font-semibold text-gray-800 text-sm">拍照检测</span>
+                    <span class="text-xs text-gray-500 mt-1">实时拍摄分析</span>
+                </button>
+                
+                <button class="group modern-button flex flex-col items-center justify-center p-6 bg-gradient-to-br from-mint-100 to-mint-200 rounded-2xl hover:from-mint-200 hover:to-mint-300 transition-all duration-300 border border-mint-200/50">
+                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3 shadow-md group-hover:shadow-lg transition-shadow">
+                        <i class="fas fa-image text-mint-500 text-xl group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <span class="font-semibold text-gray-800 text-sm">从相册选择</span>
+                    <span class="text-xs text-gray-500 mt-1">选择已有照片</span>
+                </button>
+            </div>
+            
+            <!-- Feature highlights -->
+            <div class="flex items-center justify-center space-x-6 mt-6 pt-4 border-t border-gray-100 relative z-10">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-xs text-gray-600">AI智能识别</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                    <span class="text-xs text-gray-600">专业分析</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                    <span class="text-xs text-gray-600">个性建议</span>
+                </div>
+            </div>
+        </div>
+        <!-- Overall Health Score -->
+        <div class="modern-card bg-gradient-to-br from-sakura-400 to-sakura-600 p-6 mb-6 text-white data-viz">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg font-bold flex items-center">
+                        <i class="fas fa-sparkles mr-2 icon-bounce"></i>
+                        AI肌肤健康评分
+                    </h2>
+                    <p class="text-sm opacity-90">基于深度学习智能分析</p>
+                </div>
+                <div class="relative w-24 h-24">
+                    <svg class="progress-ring transform -rotate-90" width="96" height="96">
+                        <circle stroke="rgba(255,255,255,0.15)" stroke-width="4" fill="transparent" r="42" cx="48" cy="48"/>
+                        <circle id="healthScoreCircle" stroke="#ffffff" stroke-width="4" fill="transparent" r="42" cx="48" cy="48"
+                            stroke-dasharray="263.9" stroke-dashoffset="65.975" stroke-linecap="round"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center score-animation">
+                            <span class="text-2xl font-bold">75</span>
+                            <div class="text-xs opacity-80">健康分</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/20 backdrop-filter backdrop-blur-sm rounded-xl p-4">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle mr-3 mt-1 opacity-80"></i>
+                    <p class="text-sm leading-relaxed">混合偏油性皮肤，T区油脂分泌旺盛伴随毛孔粗大，局部存在少量闭口型粉刺及黑头，肤色均匀度良好但需加强控油护理</p>
+                </div>
+            </div>
+            <div class="flex justify-center mt-4">
+                <div class="flex items-center space-x-2">
+                    <div class="status-indicator bg-white"></div>
+                    <span class="text-xs opacity-90">实时检测完成</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skin Type Analysis -->
+        <div class="modern-card p-6 data-viz mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-microscope text-sakura-500 mr-3 icon-bounce"></i>
+                    皮肤类型分析
+                </h3>
+                <div class="modern-tag px-3 py-1 rounded-full">
+                    <span class="text-xs font-medium text-sakura-600">AI识别</span>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-sakura-50 to-mint-50 rounded-2xl p-5 mb-6 border border-sakura-100">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <h4 id="skinType" class="font-bold text-gray-800 text-lg mb-2">混合偏油性皮肤</h4>
+                        <p class="text-sm text-gray-600 mb-3">T区偏油，U区正常偏干</p>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-sakura-400 rounded-full"></div>
+                            <span class="text-xs text-gray-500">基于面部油脂分布分析</span>
+                        </div>
+                    </div>
+                    <div class="text-4xl opacity-80">🧴</div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-white/50 rounded-xl p-4 border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-oil-can text-amber-500 mr-2"></i>
+                            T区油脂分泌
+                        </span>
+                        <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">偏高</span>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-amber-400 to-orange-400" style="width: 75%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500">建议使用控油洁面产品</p>
+                </div>
+                
+                <div class="bg-white/50 rounded-xl p-4 border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-tint text-blue-500 mr-2"></i>
+                            U区水分含量
+                        </span>
+                        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">正常</span>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-blue-400 to-cyan-400" style="width: 60%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500">保持现有保湿护理</p>
+                </div>
+                
+                <div class="bg-white/50 rounded-xl p-4 border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-circle-notch text-purple-500 mr-2"></i>
+                            毛孔粗细度
+                        </span>
+                        <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded-full">中等</span>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-purple-400 to-pink-400" style="width: 55%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500">T区毛孔略显粗大</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis Grid -->
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <!-- Blackheads -->
+            <div class="modern-card p-4 dynamic-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
+                        <i class="fas fa-dot-circle text-amber-500 mr-2"></i>
+                        黑头情况
+                    </h4>
+                    <div class="status-indicator bg-amber-400"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold gradient-text mb-2" id="blackheadSeverity">少量</div>
+                    <div class="enhanced-progress mb-3">
+                        <div class="progress-fill bg-gradient-to-r from-amber-400 to-orange-400" style="width: 30%"></div>
+                    </div>
+                    <div class="bg-amber-50 rounded-lg p-2 mb-2">
+                        <p class="text-xs text-amber-700 font-medium">鼻翼、下巴</p>
+                    </div>
+                    <div class="flex justify-center space-x-1">
+                        <div class="w-1.5 h-1.5 bg-amber-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acne -->
+            <div class="modern-card p-4 dynamic-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                        痘痘情况
+                    </h4>
+                    <div class="status-indicator bg-orange-400"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold gradient-text mb-2" id="acneSeverity">少量</div>
+                    <div class="enhanced-progress mb-3">
+                        <div class="progress-fill bg-gradient-to-r from-orange-400 to-red-400" style="width: 25%"></div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-2 mb-2">
+                        <p class="text-xs text-orange-700 font-medium">额头、下巴粉刺</p>
+                    </div>
+                    <div class="flex justify-center space-x-1">
+                        <div class="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pores -->
+            <div class="modern-card p-4 dynamic-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
+                        <i class="fas fa-circle text-yellow-500 mr-2"></i>
+                        毛孔状态
+                    </h4>
+                    <div class="status-indicator bg-yellow-400"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold gradient-text mb-2" id="poresSeverity">中度</div>
+                    <div class="enhanced-progress mb-3">
+                        <div class="progress-fill bg-gradient-to-r from-yellow-400 to-orange-500" style="width: 60%"></div>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-2 mb-2">
+                        <p class="text-xs text-yellow-700 font-medium">T区粗大</p>
+                    </div>
+                    <div class="flex justify-center space-x-1">
+                        <div class="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-yellow-300 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skin Tone Evenness -->
+            <div class="modern-card p-4 dynamic-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
+                        <i class="fas fa-palette text-green-500 mr-2"></i>
+                        肤色均匀度
+                    </h4>
+                    <div class="status-indicator bg-green-400"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold gradient-text mb-2" id="skinToneSeverity">良好</div>
+                    <div class="enhanced-progress mb-3">
+                        <div class="progress-fill bg-gradient-to-r from-green-400 to-green-500" style="width: 70%"></div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-2 mb-2">
+                        <p class="text-xs text-green-700 font-medium">较为均匀</p>
+                    </div>
+                    <div class="flex justify-center space-x-1">
+                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-green-300 rounded-full"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Issues -->
+        <div class="modern-card p-6 data-viz mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-search-plus text-orange-500 mr-3 icon-bounce"></i>
+                    其他皮肤问题
+                </h3>
+                <div class="modern-tag px-3 py-1 rounded-full">
+                    <span class="text-xs font-medium text-orange-600">深度分析</span>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Redness -->
+                <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-4 border border-red-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-thermometer-half text-red-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 text-sm">泛红情况</h4>
+                                <p class="text-xs text-red-600">轻微敏感性泛红</p>
+                            </div>
+                        </div>
+                        <div class="modern-tag bg-red-100 border-red-200">
+                            <span class="text-xs font-semibold text-red-600">轻度</span>
+                        </div>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-red-400 to-pink-400" style="width: 30%"></div>
+                    </div>
+                    <p class="text-xs text-gray-600">建议使用舒缓类护肤品</p>
+                </div>
+
+                <!-- Hyperpigmentation -->
+                <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-sun text-amber-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 text-sm">色素沉着</h4>
+                                <p class="text-xs text-amber-600">少量晒斑痘印</p>
+                            </div>
+                        </div>
+                        <div class="modern-tag bg-amber-100 border-amber-200">
+                            <span class="text-xs font-semibold text-amber-600">轻度</span>
+                        </div>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-amber-400 to-orange-400" style="width: 25%"></div>
+                    </div>
+                    <p class="text-xs text-gray-600">建议加强防晒和美白护理</p>
+                </div>
+                
+                <!-- Fine Lines -->
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-eye text-purple-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 text-sm">细纹状况</h4>
+                                <p class="text-xs text-purple-600">眼周轻微细纹</p>
+                            </div>
+                        </div>
+                        <div class="modern-tag bg-green-100 border-green-200">
+                            <span class="text-xs font-semibold text-green-600">良好</span>
+                        </div>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-green-400 to-emerald-400" style="width: 15%"></div>
+                    </div>
+                    <p class="text-xs text-gray-600">建议使用抗氧化眼霜</p>
+                </div>
+                
+                <!-- Sensitivity -->
+                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-shield-alt text-blue-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 text-sm">敏感程度</h4>
+                                <p class="text-xs text-blue-600">轻度敏感肌</p>
+                            </div>
+                        </div>
+                        <div class="modern-tag bg-blue-100 border-blue-200">
+                            <span class="text-xs font-semibold text-blue-600">轻度</span>
+                        </div>
+                    </div>
+                    <div class="enhanced-progress mb-2">
+                        <div class="progress-fill bg-gradient-to-r from-blue-400 to-cyan-400" style="width: 35%"></div>
+                    </div>
+                    <p class="text-xs text-gray-600">建议选择温和无刺激产品</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="modern-card p-6 data-viz mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-brain text-blue-500 mr-3 icon-bounce"></i>
+                    AI智能护肤建议
+                </h3>
+                <div class="modern-tag px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100">
+                    <span class="text-xs font-medium gradient-text">个性化定制</span>
+                </div>
+            </div>
+            
+            <div class="space-y-5">
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-blue-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
+                    <div class="relative">
+                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-droplet text-white text-sm"></i>
+                            </div>
+                            清洁护理方案
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">基于您的混合偏油性肌肤特点，建议使用温和的氨基酸洁面乳，早晚各一次，避免过度清洁导致水油失衡。</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium border border-blue-200">氨基酸洁面</span>
+                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium border border-blue-200">温和清洁</span>
+                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium border border-blue-200">pH平衡</span>
+                        </div>
+                        <div class="flex items-center text-xs text-blue-600">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>建议使用频率：早晚各1次</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-5 border border-emerald-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
+                    <div class="relative">
+                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
+                            <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-leaf text-white text-sm"></i>
+                            </div>
+                            控油平衡护理
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">针对T区油脂分泌旺盛的问题，推荐使用含2%水杨酸的爽肤水，有效疏通毛孔，控制油脂分泌。</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">2%水杨酸</span>
+                            <span class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">控油平衡</span>
+                            <span class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">疏通毛孔</span>
+                        </div>
+                        <div class="flex items-center text-xs text-emerald-600">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>重点区域：T区（额头、鼻翼、下巴）</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-amber-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
+                    <div class="relative">
+                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
+                            <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-sun text-white text-sm"></i>
+                            </div>
+                            防晒保护计划
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">每日使用SPF30+广谱防晒霜，预防紫外线损伤和色素沉着，特别注意补涂频率。</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium border border-amber-200">SPF30+</span>
+                            <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium border border-amber-200">广谱防护</span>
+                            <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium border border-amber-200">抗氧化</span>
+                        </div>
+                        <div class="flex items-center text-xs text-amber-600">
+                            <i class="fas fa-redo mr-2"></i>
+                            <span>建议每2-3小时补涂一次</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 border border-purple-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-purple-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
+                    <div class="relative">
+                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
+                            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-heart text-white text-sm"></i>
+                            </div>
+                            保湿修护建议
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">U区使用含透明质酸的保湿精华，维持肌肤水油平衡，避免外油内干的情况。</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">透明质酸</span>
+                            <span class="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">深层保湿</span>
+                            <span class="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">水油平衡</span>
+                        </div>
+                        <div class="flex items-center text-xs text-purple-600">
+                            <i class="fas fa-tint mr-2"></i>
+                            <span>重点护理：U区（两颊、眼周）</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <button class="group relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-5 rounded-2xl font-semibold text-base shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 flex items-center justify-center border border-blue-400">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
+                <div class="relative flex items-center">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-camera text-white text-sm"></i>
+                    </div>
+                    <span>重新检测</span>
+                </div>
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+            
+            <button class="group relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white py-5 rounded-2xl font-semibold text-base shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 flex items-center justify-center border border-emerald-400">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
+                <div class="relative flex items-center">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-share text-white text-sm"></i>
+                    </div>
+                    <span>分享报告</span>
+                </div>
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+        </div>
+        
+        <!-- 额外功能按钮 -->
+       
+    </main>
+
+    <!-- Bottom Navigation -->
+
+    
+        </div>
+    </div>
+    
+    <script src="navigation.js"></script>
+
+    <script>
+        // 模拟后端返回的皮肤分析数据
+        const skinAnalysisData = {
+            "skinType": {
+                "type": "混合性皮肤",
+                "subtype": "混油性",
+                "basis": "T区（额头、鼻梁）呈现明显光泽度，毛孔粗大；U区（脸颊、下巴）略显干燥，皮肤纹理细腻"
+            },
+            "blackheads": {
+                "exists": true,
+                "severity": "少量",
+                "distribution": ["鼻翼", "下巴"]
+            },
+            "acne": {
+                "exists": true,
+                "count": "少量",
+                "types": ["粉刺"],
+                "activity": "轻度活跃",
+                "distribution": ["额头", "下巴"]
+            },
+            "pores": {
+                "enlarged": true,
+                "severity": "中度",
+                "distribution": ["T区"]
+            },
+            "otherIssues": {
+                "redness": {
+                    "exists": true,
+                    "severity": "轻度",
+                    "distribution": ["鼻翼", "脸颊"]
+                },
+                "hyperpigmentation": {
+                    "exists": false,
+                    "types": [],
+                    "distribution": []
+                },
+                "fineLines": {
+                    "exists": false,
+                    "severity": "无",
+                    "distribution": []
+                },
+                "sensitivity": {
+                    "exists": false,
+                    "signs": []
+                },
+                "skinToneEvenness": {
+                    "score": 7,
+                    "description": "较为均匀，T区略显暗沉"
+                }
+            },
+            "overallAssessment": {
+                "healthScore": 75,
+                "summary": "混合偏油性皮肤，T区油脂分泌旺盛伴随毛孔粗大，局部存在少量闭口型粉刺及黑头，肤色均匀度良好但需加强控油护理",
+                "recommendations": [
+                    "使用温和氨基酸洁面产品早晚清洁",
+                    "每周1-2次化学去角质（如水杨酸棉片）疏通毛孔",
+                    "选择含烟酰胺成分的保湿霜平衡水油"
+                ],
+                "skinCondition": "需要改善"
+            }
+        };
+
+        // 健康评分圆环动画
+        function animateHealthScore() {
+            const circle = document.getElementById('healthScoreCircle');
+            const scoreText = document.querySelector('.health-score-number');
+            const score = skinAnalysisData.overallAssessment.healthScore;
+            
+            if (!circle || !scoreText) return;
+            
+            const radius = 45;
+            const circumference = radius * 2 * Math.PI;
+            const offset = circumference - (score / 100 * circumference);
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = circumference;
+            
+            // 动画效果
+            setTimeout(() => {
+                circle.style.transition = 'stroke-dashoffset 2.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                circle.style.strokeDashoffset = offset;
+            }, 800);
+            
+            // 数字动画
+            let currentScore = 0;
+            const increment = score / 80; // 2.5秒内完成
+            const timer = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= score) {
+                    currentScore = score;
+                    clearInterval(timer);
+                }
+                scoreText.textContent = Math.round(currentScore);
+            }, 30);
+        }
+
+        // 获取严重程度对应的百分比
+        function getSeverityPercentage(severity) {
+            const severityMap = {
+                '无': 0,
+                '轻度': 25,
+                '少量': 30,
+                '中度': 60,
+                '大量': 80,
+                '严重': 90
+            };
+            return severityMap[severity] || 0;
+        }
+
+        // 获取严重程度对应的颜色
+        function getSeverityColor(severity) {
+            const colorMap = {
+                '无': 'from-gray-300 to-gray-400',
+                '轻度': 'from-green-400 to-green-500',
+                '少量': 'from-yellow-400 to-orange-400',
+                '中度': 'from-orange-400 to-orange-500',
+                '大量': 'from-red-400 to-red-500',
+                '严重': 'from-red-500 to-red-600'
+            };
+            return colorMap[severity] || 'from-gray-300 to-gray-400';
+        }
+
+        // 更新进度条
+        function updateProgressBars() {
+            // 更新所有进度条
+            const progressBars = document.querySelectorAll('.enhanced-progress-fill');
+            
+            progressBars.forEach((bar, index) => {
+                let percentage = 0;
+                let colorClass = '';
+                
+                switch(index) {
+                    case 0: // 黑头
+                        if (skinAnalysisData.blackheads.exists) {
+                            percentage = getSeverityPercentage(skinAnalysisData.blackheads.severity);
+                            colorClass = getSeverityColor(skinAnalysisData.blackheads.severity);
+                        }
+                        break;
+                    case 1: // 痘痘
+                        if (skinAnalysisData.acne.exists) {
+                            percentage = getSeverityPercentage(skinAnalysisData.acne.count);
+                            colorClass = getSeverityColor(skinAnalysisData.acne.count);
+                        }
+                        break;
+                    case 2: // 毛孔
+                        if (skinAnalysisData.pores.enlarged) {
+                            percentage = getSeverityPercentage(skinAnalysisData.pores.severity);
+                            colorClass = getSeverityColor(skinAnalysisData.pores.severity);
+                        }
+                        break;
+                    case 3: // 肤色均匀度
+                        percentage = (skinAnalysisData.otherIssues.skinToneEvenness.score / 10) * 100;
+                        colorClass = percentage > 70 ? 'from-green-400 to-green-500' : 
+                                   percentage > 50 ? 'from-yellow-400 to-orange-400' : 
+                                   'from-red-400 to-red-500';
+                        break;
+                }
+                
+                // 动画效果
+                setTimeout(() => {
+                    bar.style.width = `${percentage}%`;
+                    bar.className = `enhanced-progress-fill bg-gradient-to-r ${colorClass} h-full rounded-full transition-all duration-1000 ease-out`;
+                }, 1000 + (index * 200));
+            });
+            
+            // 更新其他问题的进度条
+            const otherIssuesBars = document.querySelectorAll('.other-issues .enhanced-progress-fill');
+            const otherIssuesData = [
+                skinAnalysisData.otherIssues.redness,
+                skinAnalysisData.otherIssues.hyperpigmentation,
+                skinAnalysisData.otherIssues.fineLines,
+                skinAnalysisData.otherIssues.sensitivity
+            ];
+            
+            otherIssuesBars.forEach((bar, index) => {
+                const issueData = otherIssuesData[index];
+                let percentage = 0;
+                let colorClass = 'from-gray-300 to-gray-400';
+                
+                if (issueData && issueData.exists) {
+                    percentage = getSeverityPercentage(issueData.severity || '轻度');
+                    colorClass = getSeverityColor(issueData.severity || '轻度');
+                }
+                
+                setTimeout(() => {
+                    bar.style.width = `${percentage}%`;
+                    bar.className = `enhanced-progress-fill bg-gradient-to-r ${colorClass} h-full rounded-full transition-all duration-1000 ease-out`;
+                }, 1500 + (index * 150));
+            });
+        }
+
+        // 添加卡片悬停效果
+        function addHoverEffects() {
+            const cards = document.querySelectorAll('.modern-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                    this.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+                });
+            });
+            
+            // 添加数据可视化卡片的特殊效果
+            const dataVizCards = document.querySelectorAll('.data-viz');
+            dataVizCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    const progressBars = this.querySelectorAll('.enhanced-progress-fill');
+                    progressBars.forEach(bar => {
+                        bar.style.filter = 'brightness(1.1) saturate(1.2)';
+                    });
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    const progressBars = this.querySelectorAll('.enhanced-progress-fill');
+                    progressBars.forEach(bar => {
+                        bar.style.filter = 'brightness(1) saturate(1)';
+                    });
+                });
+            });
+        }
+
+        // 添加按钮点击效果
+        function addButtonEffects() {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 添加点击动画
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                    
+                    // 创建涟漪效果
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    const ripple = document.createElement('div');
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.4);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: modernRipple 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                        pointer-events: none;
+                        z-index: 10;
+                    `;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 800);
+                });
+            });
+        }
+        
+        // 添加滚动视差效果
+        function addScrollEffects() {
+            const cards = document.querySelectorAll('.modern-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = `opacity 0.6s ease-out ${index * 0.1}s, transform 0.6s ease-out ${index * 0.1}s`;
+                observer.observe(card);
+            });
+        }
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟执行动画，让页面先渲染
+            setTimeout(() => {
+                animateHealthScore();
+                updateProgressBars();
+                addHoverEffects();
+                addButtonEffects();
+                addScrollEffects();
+            }, 500);
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes modernRipple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .modern-card {
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .enhanced-progress-fill {
+                transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .data-viz:hover .enhanced-progress-fill {
+                animation: progressPulse 2s ease-in-out infinite;
+            }
+            
+            @keyframes progressPulse {
+                0%, 100% { filter: brightness(1) saturate(1); }
+                50% { filter: brightness(1.2) saturate(1.3); }
+            }
+            
+            .icon-bounce {
+                animation: iconBounce 2s ease-in-out infinite;
+            }
+            
+            @keyframes iconBounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-8px); }
+                60% { transform: translateY(-4px); }
+            }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            
+            .modern-tag {
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .health-score-number {
+                font-feature-settings: 'tnum';
+                font-variant-numeric: tabular-nums;
+            }
+            
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .device-frame {
+                animation: fadeInUp 0.8s ease-out;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

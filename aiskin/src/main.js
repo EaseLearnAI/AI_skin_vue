@@ -3,6 +3,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import authService from './services/authService'
 import axios from 'axios'
+import config from './api/config'
+
+// 引入全局样式
+import './assets/styles/skin-analysis.css'
 
 // Import FontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -15,12 +19,12 @@ import {
   faSearchPlus, faClock, faExclamation, faCheck, 
   faSun, faMoon, faEllipsisV, faPlusCircle, faImage,
   faShieldAlt, faChevronRight, faTint, faOilCan, 
-  faExclamationCircle, faFlaskVial, faHistory,
+  faExclamationCircle, faHistory,
   faQuestionCircle, faCog, faEnvelope, faLock,
   faEye, faEyeSlash, faSpinner, faRobot, faMagic,
   faLightbulb, faStar, faInfoCircle, faCheckCircle,
   faUpload, faSyncAlt, faTrashAlt, faPlus, 
-  faQrcode, faCalendarCheck, faWandMagicSparkles
+  faQrcode, faCalendarCheck
 } from '@fortawesome/free-solid-svg-icons'
 
 // Import regular icons
@@ -37,12 +41,12 @@ library.add(
   faSearchPlus, faClock, faExclamation, faCheck, 
   faSun, faMoon, faEllipsisV, faPlusCircle, faImage,
   faShieldAlt, faChevronRight, faTint, faOilCan, 
-  faExclamationCircle, faFlaskVial, faHistory,
+  faExclamationCircle, faHistory,
   faQuestionCircle, faCog, faEnvelope, faLock,
   faEye, faEyeSlash, faSpinner, faRobot, faMagic,
   faLightbulb, faStar, faInfoCircle, faCheckCircle,
   faUpload, faSyncAlt, faTrashAlt, faPlus,
-  faQrcode, faCalendarCheck, faWandMagicSparkles,
+  faQrcode, faCalendarCheck,
   farCircle
 )
 
@@ -122,8 +126,8 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-// 全局axios配置
-axios.defaults.baseURL = 'http://localhost:5000'
+// 全局axios配置 - 使用配置文件中的URL
+axios.defaults.baseURL = config.API_URL.replace('/api', '')
 
 // Create and mount the app
 const app = createApp(App)

@@ -30,6 +30,18 @@
         </div>
       </router-link>
 
+      <!-- Smart Scan -->
+      <router-link to="/skinstatus" class="feature-card">
+        <div class="feature-content">
+          <div class="feature-icon">
+            <font-awesome-icon :icon="['fas', 'camera']" />
+          </div>
+          <h3 class="feature-title">肌肤检测</h3>
+          <p class="feature-description">AI智能皮肤分析</p>
+        </div>
+      </router-link>
+
+
       <!-- Personalized Routine -->
       <div class="feature-card" @click="openPersonalizedRoutineModal">
         <div class="feature-content">
@@ -42,15 +54,7 @@
       </div>
 
       <!-- Smart Scan -->
-      <router-link to="/product?scanMode=true" class="feature-card">
-        <div class="feature-content">
-          <div class="feature-icon">
-            <font-awesome-icon :icon="['fas', 'qrcode']" />
-          </div>
-          <h3 class="feature-title">肌肤检测</h3>
-          <p class="feature-description">AI智能皮肤分析</p>
-        </div>
-      </router-link>
+
     </div>
     
     <!-- Personalized Routine Modal -->
