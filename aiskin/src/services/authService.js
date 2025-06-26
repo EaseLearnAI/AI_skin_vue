@@ -24,7 +24,9 @@ axios.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Token过期或无效，清除用户信息并重定向到登录页
       authService.logout()
-      window.location.href = '/login?redirect=' + window.location.pathname
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
@@ -37,11 +39,11 @@ axios.interceptors.response.use(
 const authService = {
   /**
    * Login user
-   * @param {Object} credentials - User credentials (email, password)
+   * @param {Object} credentials - User credentials (phone, password)
    * @returns {Promise} - API response
    */
   login(credentials) {
-    console.log('🔐 Auth Request: Login', { email: credentials.email });
+    console.log('🔐 Auth Request: Login', { phone: credentials.phone });
     return axios.post(`${API_URL}/users/login`, credentials)
       .then(response => {
         if (response.data.success) {
@@ -62,7 +64,7 @@ const authService = {
    * @returns {Promise} - API response
    */
   register(userData) {
-    console.log('🔐 Auth Request: Register', { email: userData.email, name: userData.name });
+    console.log('🔐 Auth Request: Register', { phone: userData.phone, name: userData.name });
     return axios.post(`${API_URL}/users/register`, userData)
       .then(response => {
         if (response.data.success) {

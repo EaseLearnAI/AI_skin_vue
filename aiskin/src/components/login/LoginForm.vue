@@ -6,18 +6,18 @@
     </div>
     
     <div class="form-group">
-      <label for="email">
-        <font-awesome-icon icon="envelope" />
-        邮箱地址
+      <label for="phone">
+        <font-awesome-icon icon="mobile-alt" />
+        手机号
       </label>
       <input 
-        type="email" 
-        id="email" 
-        v-model="formData.email" 
-        placeholder="请输入邮箱"
-        :class="{ 'input-error': validationErrors.email }"
+        type="tel" 
+        id="phone" 
+        v-model="formData.phone" 
+        placeholder="请输入手机号"
+        :class="{ 'input-error': validationErrors.phone }"
       >
-      <span v-if="validationErrors.email" class="validation-error">{{ validationErrors.email }}</span>
+      <span v-if="validationErrors.phone" class="validation-error">{{ validationErrors.phone }}</span>
     </div>
 
     <div class="form-group">
@@ -75,12 +75,12 @@ export default {
   data() {
     return {
       formData: {
-        email: '',
+        phone: '',
         password: '',
         remember: false
       },
       validationErrors: {
-        email: '',
+        phone: '',
         password: ''
       },
       showPassword: false,
@@ -96,16 +96,16 @@ export default {
     validateForm() {
       let isValid = true
       this.validationErrors = {
-        email: '',
+        phone: '',
         password: ''
       }
 
-      // 验证邮箱
-      if (!this.formData.email) {
-        this.validationErrors.email = '请输入邮箱地址'
+      // 验证手机号
+      if (!this.formData.phone) {
+        this.validationErrors.phone = '请输入手机号'
         isValid = false
-      } else if (!/\S+@\S+\.\S+/.test(this.formData.email)) {
-        this.validationErrors.email = '请输入有效的邮箱地址'
+      } else if (!/^1[3-9]\d{9}$/.test(this.formData.phone)) {
+        this.validationErrors.phone = '请输入有效的手机号'
         isValid = false
       }
 
@@ -125,7 +125,7 @@ export default {
 
       try {
         const response = await authService.login({
-          email: this.formData.email,
+          phone: this.formData.phone,
           password: this.formData.password,
           remember: this.formData.remember
         })
@@ -197,7 +197,7 @@ label svg {
   color: #F8BBD0;
 }
 
-input[type="email"],
+input[type="tel"],
 input[type="password"],
 input[type="text"] {
   width: 100%;
