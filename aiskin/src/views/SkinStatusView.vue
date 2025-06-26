@@ -500,7 +500,7 @@ export default {
 }
 
 .main-content {
-  padding: 0 1rem 2rem 1rem;
+  padding: 1rem 1rem 1rem 1rem;
   max-width: 430px;
   margin: 0 auto;
 }

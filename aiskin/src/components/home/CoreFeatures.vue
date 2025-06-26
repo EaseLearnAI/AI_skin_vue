@@ -85,57 +85,8 @@
         <!-- Input State (Initial or Reset) -->
         <div v-else-if="!generatedPlan" class="routine-input">
           <p class="input-description">
-            请告诉我您的护肤需求，AI将结合您的最新肌肤检测结果为您定制个性化护肤方案。
+            请告诉我您的护肤需求和肌肤状况，AI将为您定制个性化护肤方案。
           </p>
-          
-          <!-- 显示最新皮肤状态 -->
-          <div v-if="latestSkinAnalysis" class="skin-status-section">
-            <label class="input-label">最新肌肤状态</label>
-            <div class="skin-status-card">
-              <div class="skin-status-header">
-                <div class="health-score">
-                  <span class="score-number">{{ latestSkinAnalysis.healthScore }}</span>
-                  <span class="score-label">健康分</span>
-                </div>
-                <div class="skin-type">
-                  <span class="type-text">{{ latestSkinAnalysis.skinType }}</span>
-                  <span class="condition-text">{{ latestSkinAnalysis.skinCondition }}</span>
-                </div>
-              </div>
-              <div class="skin-status-details">
-                <div class="status-item">
-                  <span class="status-label">检测时间：</span>
-                  <span class="status-value">{{ formatAnalysisDate(latestSkinAnalysis.analysisDate) }}</span>
-                </div>
-                <div class="status-item">
-                  <span class="status-label">主要特征：</span>
-                  <span class="status-value">{{ getSkinFeatures() }}</span>
-                </div>
-              </div>
-              <div class="refresh-analysis">
-                <button class="refresh-btn" @click="refreshSkinAnalysis">
-                  <font-awesome-icon :icon="['fas', 'sync-alt']" class="mr-1" />
-                  重新检测
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 无皮肤分析数据时的提示 -->
-          <div v-else class="no-analysis-section">
-            <label class="input-label">肌肤状态</label>
-            <div class="no-analysis-card">
-              <div class="no-analysis-icon">
-                <font-awesome-icon :icon="['fas', 'search-plus']" />
-              </div>
-              <p class="no-analysis-text">您还没有进行肌肤检测</p>
-              <p class="no-analysis-desc">建议先进行AI肌肤检测，以获得更精准的护肤方案</p>
-              <button class="go-analysis-btn" @click="goToSkinAnalysis">
-                <font-awesome-icon :icon="['fas', 'camera']" class="mr-2" />
-                立即检测
-              </button>
-            </div>
-          </div>
           
           <!-- Skin Concerns -->
           <div class="input-group">
@@ -150,6 +101,22 @@
               >
                 <font-awesome-icon :icon="concern.icon" class="mr-2" />
                 {{ concern.label }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Skin Type -->
+          <div class="input-group">
+            <label class="input-label">肌肤类型</label>
+            <div class="skin-types">
+              <button 
+                v-for="type in skinTypes" 
+                :key="type.value"
+                class="type-button"
+                :class="{ active: selectedSkinType === type.value }"
+                @click="selectedSkinType = type.value"
+              >
+                {{ type.label }}
               </button>
             </div>
           </div>
@@ -169,10 +136,10 @@
           <button 
             class="generate-button" 
             @click="generatePersonalizedPlan"
-            :disabled="selectedConcerns.length === 0"
+            :disabled="selectedConcerns.length === 0 || !selectedSkinType"
           >
             <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="mr-2" />
-            {{ latestSkinAnalysis ? '生成个性化方案' : '基于需求生成方案' }}
+            开始生成
           </button>
         </div>
         
@@ -194,7 +161,6 @@ import AppModal from '@/components/common/AppModal.vue'
 import PersonalizedRoutinePreview from '@/components/home/PersonalizedRoutinePreview.vue'
 import * as planApi from '@/api/planApi'
 import authService from '@/services/authService'
-import skinAnalysisApi from '@/api/skinAnalysisApi'
 
 export default {
   name: 'CoreFeatures',
@@ -209,9 +175,8 @@ export default {
       planError: null,
       generatedPlan: null,
       selectedConcerns: [],
+      selectedSkinType: '',
       customRequirements: '',
-      latestSkinAnalysis: null,
-      loadingSkinAnalysis: false,
       
       // Predefined options
       skinConcerns: [
@@ -221,63 +186,20 @@ export default {
         { label: '控油', value: 'oil-control', icon: ['fas', 'oil-can'] },
         { label: '修护', value: 'repair', icon: ['fas', 'band-aid'] },
         { label: '祛痘', value: 'acne', icon: ['fas', 'virus'] }
+      ],
+      skinTypes: [
+        { label: '干性肌肤', value: 'dry' },
+        { label: '油性肌肤', value: 'oily' },
+        { label: '混合性肌肤', value: 'combination' },
+        { label: '中性肌肤', value: 'normal' },
+        { label: '敏感肌肤', value: 'sensitive' }
       ]
     }
   },
-  async mounted() {
-    // 组件挂载时获取最新皮肤分析数据
-    await this.loadLatestSkinAnalysis();
-  },
   methods: {
-    async openPersonalizedRoutineModal() {
-      this.showPersonalizedRoutineModal = true;
-      // 每次打开弹窗时刷新皮肤分析数据
-      await this.loadLatestSkinAnalysis();
+    openPersonalizedRoutineModal() {
+      this.showPersonalizedRoutineModal = true
     },
-    
-    async loadLatestSkinAnalysis() {
-      console.group('📊 加载最新皮肤分析数据');
-      this.loadingSkinAnalysis = true;
-      
-      try {
-        const response = await skinAnalysisApi.getAnalysisHistory(1, 1);
-        
-        if (response.success && response.data.analyses.length > 0) {
-          const analysis = response.data.analyses[0];
-          this.latestSkinAnalysis = {
-            analysisId: analysis._id,
-            healthScore: analysis.overallAssessment?.healthScore || 0,
-            skinType: analysis.skinType?.type || '未知',
-            skinCondition: analysis.overallAssessment?.skinCondition || '未知',
-            analysisDate: analysis.createdAt,
-            summary: analysis.overallAssessment?.summary || '',
-            // 其他详细信息用于显示特征
-            blackheads: analysis.blackheads,
-            acne: analysis.acne,
-            pores: analysis.pores,
-            otherIssues: analysis.otherIssues
-          };
-          
-          console.log('✅ 皮肤分析数据加载成功:', {
-            ID: this.latestSkinAnalysis.analysisId,
-            健康评分: this.latestSkinAnalysis.healthScore,
-            皮肤类型: this.latestSkinAnalysis.skinType,
-            皮肤状况: this.latestSkinAnalysis.skinCondition
-          });
-        } else {
-          console.log('ℹ️ 未找到皮肤分析数据');
-          this.latestSkinAnalysis = null;
-        }
-      } catch (error) {
-        console.error('❌ 加载皮肤分析数据失败:', error);
-        this.latestSkinAnalysis = null;
-      } finally {
-        this.loadingSkinAnalysis = false;
-      }
-      
-      console.groupEnd();
-    },
-    
     toggleConcern(concern) {
       const index = this.selectedConcerns.indexOf(concern)
       if (index === -1) {
@@ -290,9 +212,8 @@ export default {
         this.selectedConcerns.splice(index, 1)
       }
     },
-    
     async generatePersonalizedPlan() {
-      if (this.selectedConcerns.length === 0) {
+      if (this.selectedConcerns.length === 0 || !this.selectedSkinType) {
         return
       }
       
@@ -308,8 +229,10 @@ export default {
           return
         }
         
-        // Prepare request data with new structure
+        // Prepare request data
         const planData = {
+          userId: user._id,
+          skinType: this.selectedSkinType,
           skinConcerns: this.selectedConcerns,
           customRequirements: this.customRequirements
         }
@@ -321,13 +244,6 @@ export default {
         if (response.success) {
           console.log('✅ 获取个性化护肤方案成功:', response)
           this.generatedPlan = response.data.plan
-          
-          // 显示皮肤分析集成信息
-          if (response.data.skinAnalysisData?.hasAnalysis) {
-            console.log('📊 已集成皮肤分析数据:', response.data.skinAnalysisData)
-          } else {
-            console.log('⚠️ 未找到皮肤分析数据，使用通用建议')
-          }
         } else {
           this.planError = response.message || '获取个性化护肤方案失败'
           console.error('❌ 获取个性化护肤方案失败:', response)
@@ -339,68 +255,20 @@ export default {
         this.loadingPlan = false
       }
     },
-    
-    formatAnalysisDate(dateString) {
-      if (!dateString) return '未知';
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffTime = Math.abs(now - date);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) {
-        return '今天';
-      } else if (diffDays === 2) {
-        return '昨天';
-      } else if (diffDays <= 7) {
-        return `${diffDays - 1}天前`;
-      } else {
-        return date.toLocaleDateString('zh-CN');
-      }
+    getSkinTypeLabel(value) {
+      const type = this.skinTypes.find(t => t.value === value)
+      return type ? type.label : ''
     },
-    
-    getSkinFeatures() {
-      if (!this.latestSkinAnalysis) return '';
-      
-      const features = [];
-      const analysis = this.latestSkinAnalysis;
-      
-      if (analysis.blackheads?.exists) {
-        features.push(`黑头${analysis.blackheads.severity}`);
-      }
-      if (analysis.acne?.exists) {
-        features.push(`痘痘${analysis.acne.count}`);
-      }
-      if (analysis.pores?.enlarged) {
-        features.push(`毛孔${analysis.pores.severity}`);
-      }
-      if (analysis.otherIssues?.redness?.exists) {
-        features.push('有泛红');
-      }
-      if (analysis.otherIssues?.sensitivity?.exists) {
-        features.push('较敏感');
-      }
-      
-      return features.length > 0 ? features.join('、') : '状态良好';
+    getConcernLabel(value) {
+      const concern = this.skinConcerns.find(c => c.value === value)
+      return concern ? concern.label : ''
     },
-    
-    refreshSkinAnalysis() {
-      // 跳转到皮肤检测页面
-      this.$router.push('/skinstatus');
-      this.showPersonalizedRoutineModal = false;
-    },
-    
-    goToSkinAnalysis() {
-      // 跳转到皮肤检测页面
-      this.$router.push('/skinstatus');
-      this.showPersonalizedRoutineModal = false;
-    },
-    
     resetPlan() {
       this.generatedPlan = null
       this.selectedConcerns = []
+      this.selectedSkinType = ''
       this.customRequirements = ''
     },
-    
     savePlanToRoutine() {
       // Convert plan data to the format expected by DailyRoutine
       if (this.generatedPlan) {
@@ -956,165 +824,5 @@ export default {
 
 .mr-2 {
   margin-right: 0.5rem;
-}
-
-/* 皮肤状态显示区域 */
-.skin-status-section {
-  margin-bottom: 1.5rem;
-}
-
-.skin-status-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  padding: 1.25rem;
-  color: white;
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-}
-
-.skin-status-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.health-score {
-  text-align: center;
-}
-
-.score-number {
-  display: block;
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.score-label {
-  display: block;
-  font-size: 0.75rem;
-  opacity: 0.9;
-  margin-top: 0.25rem;
-}
-
-.skin-type {
-  text-align: right;
-}
-
-.type-text {
-  display: block;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.condition-text {
-  display: block;
-  font-size: 0.875rem;
-  opacity: 0.9;
-}
-
-.skin-status-details {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 0.875rem;
-  margin-bottom: 1rem;
-  backdrop-filter: blur(10px);
-}
-
-.status-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.status-item:last-child {
-  margin-bottom: 0;
-}
-
-.status-label {
-  opacity: 0.8;
-}
-
-.status-value {
-  font-weight: 500;
-}
-
-.refresh-analysis {
-  text-align: center;
-}
-
-.refresh-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-}
-
-.refresh-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-/* 无皮肤分析数据状态 */
-.no-analysis-section {
-  margin-bottom: 1.5rem;
-}
-
-.no-analysis-card {
-  background: #f8f9fa;
-  border: 2px dashed #e9ecef;
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-}
-
-.no-analysis-icon {
-  font-size: 2.5rem;
-  color: #6c757d;
-  margin-bottom: 1rem;
-}
-
-.no-analysis-text {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #495057;
-  margin: 0 0 0.5rem 0;
-}
-
-.no-analysis-desc {
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.5;
-}
-
-.go-analysis-btn {
-  background: linear-gradient(135deg, #ab47bc, #7b1fa2);
-  border: none;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-}
-
-.go-analysis-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(123, 31, 162, 0.3);
-}
-
-.mr-1 {
-  margin-right: 0.25rem;
 }
 </style> 

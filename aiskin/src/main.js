@@ -24,10 +24,7 @@ import {
   faEye, faEyeSlash, faSpinner, faRobot, faMagic,
   faLightbulb, faStar, faInfoCircle, faCheckCircle,
   faUpload, faSyncAlt, faTrashAlt, faPlus, 
-  faQrcode, faCalendarCheck,
-  faSparkles, faMicroscope, faDotCircle, faCircle,
-  faPalette, faThermometerHalf, faBrain, faDroplet,
-  faLeaf, faHeart, faMapMarkerAlt, faRedo
+  faQrcode, faCalendarCheck
 } from '@fortawesome/free-solid-svg-icons'
 
 // Import regular icons
@@ -50,9 +47,6 @@ library.add(
   faLightbulb, faStar, faInfoCircle, faCheckCircle,
   faUpload, faSyncAlt, faTrashAlt, faPlus,
   faQrcode, faCalendarCheck,
-  faSparkles, faMicroscope, faDotCircle, faCircle,
-  faPalette, faThermometerHalf, faBrain, faDroplet,
-  faLeaf, faHeart, faMapMarkerAlt, faRedo,
   farCircle
 )
 
