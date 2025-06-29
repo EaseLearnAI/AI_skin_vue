@@ -339,522 +339,180 @@
 
     <!-- Header -->
      
-    <header class="bg-gradient-to-r from-sakura-500 to-sakura-600 p-4">
-        <div class="flex items-center justify-between">
-            <button onclick="history.back()" class="text-white">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h1 class="text-lg font-semibold text-white flex items-center">
-                <i class="fas fa-camera mr-2"></i>
-                肌肤检测
-            </h1>
-            <button class="text-white">
-                <i class="fas fa-history"></i>
-            </button>
-        </div>
-    </header>
 
+    
     <!-- Main Content -->
     <main class="p-4">
-        <!-- AI Skin Detection Welcome Card -->
-        <div class="modern-card bg-gradient-to-br from-white via-sakura-50 to-mint-50 p-6 mb-6 relative overflow-hidden">
-            <!-- Background decoration -->
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-sakura-200/30 to-transparent rounded-full transform translate-x-16 -translate-y-16"></div>
-            <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-mint-200/30 to-transparent rounded-full transform -translate-x-12 translate-y-12"></div>
-            
-            <!-- Welcome message -->
-            <div class="text-center mb-6 relative z-10">
 
-               
-                <p class="text-lg font-medium text-sakura-600 mb-1">让我来看看你的肌肤状态喵～</p>
-
-            </div>
-            
-            <!-- Detection options -->
-            <div class="grid grid-cols-2 gap-4 relative z-10">
-                <button class="group modern-button flex flex-col items-center justify-center p-6 bg-gradient-to-br from-sakura-100 to-sakura-200 rounded-2xl hover:from-sakura-200 hover:to-sakura-300 transition-all duration-300 border border-sakura-200/50">
-                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3 shadow-md group-hover:shadow-lg transition-shadow">
-                        <i class="fas fa-camera text-sakura-500 text-xl group-hover:scale-110 transition-transform"></i>
-                    </div>
-                    <span class="font-semibold text-gray-800 text-sm">拍照检测</span>
-                    <span class="text-xs text-gray-500 mt-1">实时拍摄分析</span>
-                </button>
-                
-                <button class="group modern-button flex flex-col items-center justify-center p-6 bg-gradient-to-br from-mint-100 to-mint-200 rounded-2xl hover:from-mint-200 hover:to-mint-300 transition-all duration-300 border border-mint-200/50">
-                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3 shadow-md group-hover:shadow-lg transition-shadow">
-                        <i class="fas fa-image text-mint-500 text-xl group-hover:scale-110 transition-transform"></i>
-                    </div>
-                    <span class="font-semibold text-gray-800 text-sm">从相册选择</span>
-                    <span class="text-xs text-gray-500 mt-1">选择已有照片</span>
-                </button>
-            </div>
-            
-            <!-- Feature highlights -->
-            <div class="flex items-center justify-center space-x-6 mt-6 pt-4 border-t border-gray-100 relative z-10">
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span class="text-xs text-gray-600">AI智能识别</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                    <span class="text-xs text-gray-600">专业分析</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                    <span class="text-xs text-gray-600">个性建议</span>
-                </div>
-            </div>
-        </div>
         <!-- Overall Health Score -->
-        <div class="modern-card bg-gradient-to-br from-sakura-400 to-sakura-600 p-6 mb-6 text-white data-viz">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-lg font-bold flex items-center">
-                        <i class="fas fa-sparkles mr-2 icon-bounce"></i>
-                        AI肌肤健康评分
-                    </h2>
-                    <p class="text-sm opacity-90">基于深度学习智能分析</p>
-                </div>
-                <div class="relative w-24 h-24">
-                    <svg class="progress-ring transform -rotate-90" width="96" height="96">
-                        <circle stroke="rgba(255,255,255,0.15)" stroke-width="4" fill="transparent" r="42" cx="48" cy="48"/>
-                        <circle id="healthScoreCircle" stroke="#ffffff" stroke-width="4" fill="transparent" r="42" cx="48" cy="48"
-                            stroke-dasharray="263.9" stroke-dashoffset="65.975" stroke-linecap="round"/>
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="text-center score-animation">
-                            <span class="text-2xl font-bold">75</span>
-                            <div class="text-xs opacity-80">健康分</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white/20 backdrop-filter backdrop-blur-sm rounded-xl p-4">
-                <div class="flex items-start">
-                    <i class="fas fa-info-circle mr-3 mt-1 opacity-80"></i>
-                    <p class="text-sm leading-relaxed">混合偏油性皮肤，T区油脂分泌旺盛伴随毛孔粗大，局部存在少量闭口型粉刺及黑头，肤色均匀度良好但需加强控油护理</p>
-                </div>
-            </div>
-            <div class="flex justify-center mt-4">
-                <div class="flex items-center space-x-2">
-                    <div class="status-indicator bg-white"></div>
-                    <span class="text-xs opacity-90">实时检测完成</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- Skin Type Analysis -->
-        <div class="modern-card p-6 data-viz mb-6">
+
+
+
+        <!-- Overall Skin Status -->
+        <div class="modern-card p-6 mb-6">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-microscope text-sakura-500 mr-3 icon-bounce"></i>
-                    皮肤类型分析
+                    <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-6 h-6 mr-3" alt="icon">
+                    皮肤状态总览
                 </h3>
-                <div class="modern-tag px-3 py-1 rounded-full">
-                    <span class="text-xs font-medium text-sakura-600">AI识别</span>
+                <div class="text-xs text-gray-500">
+                    <span>8项指标检测</span>
                 </div>
             </div>
             
-            <div class="bg-gradient-to-br from-sakura-50 to-mint-50 rounded-2xl p-5 mb-6 border border-sakura-100">
-                <div class="flex items-center justify-between">
-                    <div class="flex-1">
-                        <h4 id="skinType" class="font-bold text-gray-800 text-lg mb-2">混合偏油性皮肤</h4>
-                        <p class="text-sm text-gray-600 mb-3">T区偏油，U区正常偏干</p>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-2 h-2 bg-sakura-400 rounded-full"></div>
-                            <span class="text-xs text-gray-500">基于面部油脂分布分析</span>
+            <!-- Overall Assessment -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6 border-l-4 border-sakura-400">
+                <p class="text-sm text-gray-700">
+                    <span class="font-semibold text-sakura-600">综合评估：</span>
+                    皮肤整体状态良好，有2个问题需要轻度关注。
+                </p>
+            </div>
+            
+            <!-- Skin Issues List -->
+            <div class="space-y-0">
+                <!-- Blackheads -->
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">黑头情况</h4>
+                            <p class="text-xs text-gray-500">鼻翼、下巴</p>
                         </div>
                     </div>
-                    <div class="text-4xl opacity-80">🧴</div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-yellow-600">少量</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="bg-white/50 rounded-xl p-4 border border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-oil-can text-amber-500 mr-2"></i>
-                            T区油脂分泌
-                        </span>
-                        <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">偏高</span>
-                    </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-amber-400 to-orange-400" style="width: 75%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500">建议使用控油洁面产品</p>
-                </div>
-                
-                <div class="bg-white/50 rounded-xl p-4 border border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-tint text-blue-500 mr-2"></i>
-                            U区水分含量
-                        </span>
-                        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">正常</span>
-                    </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-blue-400 to-cyan-400" style="width: 60%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500">保持现有保湿护理</p>
-                </div>
-                
-                <div class="bg-white/50 rounded-xl p-4 border border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-circle-notch text-purple-500 mr-2"></i>
-                            毛孔粗细度
-                        </span>
-                        <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded-full">中等</span>
-                    </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-purple-400 to-pink-400" style="width: 55%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500">T区毛孔略显粗大</p>
-                </div>
-            </div>
-        </div>
 
-        <!-- Detailed Analysis Grid -->
-        <div class="grid grid-cols-2 gap-4 mb-5">
-            <!-- Blackheads -->
-            <div class="modern-card p-4 dynamic-shadow">
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
-                        <i class="fas fa-dot-circle text-amber-500 mr-2"></i>
-                        黑头情况
-                    </h4>
-                    <div class="status-indicator bg-amber-400"></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold gradient-text mb-2" id="blackheadSeverity">少量</div>
-                    <div class="enhanced-progress mb-3">
-                        <div class="progress-fill bg-gradient-to-r from-amber-400 to-orange-400" style="width: 30%"></div>
+                <!-- Acne -->
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">痘痘情况</h4>
+                            <p class="text-xs text-gray-500">额头、下巴粉刺</p>
+                        </div>
                     </div>
-                    <div class="bg-amber-50 rounded-lg p-2 mb-2">
-                        <p class="text-xs text-amber-700 font-medium">鼻翼、下巴</p>
-                    </div>
-                    <div class="flex justify-center space-x-1">
-                        <div class="w-1.5 h-1.5 bg-amber-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-yellow-600">少量</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Acne -->
-            <div class="modern-card p-4 dynamic-shadow">
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
-                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
-                        痘痘情况
-                    </h4>
-                    <div class="status-indicator bg-orange-400"></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold gradient-text mb-2" id="acneSeverity">少量</div>
-                    <div class="enhanced-progress mb-3">
-                        <div class="progress-fill bg-gradient-to-r from-orange-400 to-red-400" style="width: 25%"></div>
+                <!-- Pores -->
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">毛孔状态</h4>
+                            <p class="text-xs text-gray-500">T区粗大</p>
+                        </div>
                     </div>
-                    <div class="bg-orange-50 rounded-lg p-2 mb-2">
-                        <p class="text-xs text-orange-700 font-medium">额头、下巴粉刺</p>
-                    </div>
-                    <div class="flex justify-center space-x-1">
-                        <div class="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-orange-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-orange-600">中度</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Pores -->
-            <div class="modern-card p-4 dynamic-shadow">
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
-                        <i class="fas fa-circle text-yellow-500 mr-2"></i>
-                        毛孔状态
-                    </h4>
-                    <div class="status-indicator bg-yellow-400"></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold gradient-text mb-2" id="poresSeverity">中度</div>
-                    <div class="enhanced-progress mb-3">
-                        <div class="progress-fill bg-gradient-to-r from-yellow-400 to-orange-500" style="width: 60%"></div>
+                <!-- Skin Tone Evenness -->
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">肤色均匀度</h4>
+                            <p class="text-xs text-gray-500">较为均匀</p>
+                        </div>
                     </div>
-                    <div class="bg-yellow-50 rounded-lg p-2 mb-2">
-                        <p class="text-xs text-yellow-700 font-medium">T区粗大</p>
-                    </div>
-                    <div class="flex justify-center space-x-1">
-                        <div class="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-yellow-300 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-green-600">良好</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Skin Tone Evenness -->
-            <div class="modern-card p-4 dynamic-shadow">
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-semibold text-gray-800 text-sm flex items-center">
-                        <i class="fas fa-palette text-green-500 mr-2"></i>
-                        肤色均匀度
-                    </h4>
-                    <div class="status-indicator bg-green-400"></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold gradient-text mb-2" id="skinToneSeverity">良好</div>
-                    <div class="enhanced-progress mb-3">
-                        <div class="progress-fill bg-gradient-to-r from-green-400 to-green-500" style="width: 70%"></div>
-                    </div>
-                    <div class="bg-green-50 rounded-lg p-2 mb-2">
-                        <p class="text-xs text-green-700 font-medium">较为均匀</p>
-                    </div>
-                    <div class="flex justify-center space-x-1">
-                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-green-300 rounded-full"></div>
-                        <div class="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Other Issues -->
-        <div class="modern-card p-6 data-viz mb-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-search-plus text-orange-500 mr-3 icon-bounce"></i>
-                    其他皮肤问题
-                </h3>
-                <div class="modern-tag px-3 py-1 rounded-full">
-                    <span class="text-xs font-medium text-orange-600">深度分析</span>
-                </div>
-            </div>
-            
-            <div class="space-y-4">
                 <!-- Redness -->
-                <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-4 border border-red-100">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-thermometer-half text-red-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm">泛红情况</h4>
-                                <p class="text-xs text-red-600">轻微敏感性泛红</p>
-                            </div>
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
                         </div>
-                        <div class="modern-tag bg-red-100 border-red-200">
-                            <span class="text-xs font-semibold text-red-600">轻度</span>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">泛红情况</h4>
+                            <p class="text-xs text-gray-500">轻微敏感性泛红</p>
                         </div>
                     </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-red-400 to-pink-400" style="width: 30%"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-yellow-600">轻度</span>
                     </div>
-                    <p class="text-xs text-gray-600">建议使用舒缓类护肤品</p>
                 </div>
 
                 <!-- Hyperpigmentation -->
-                <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-sun text-amber-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm">色素沉着</h4>
-                                <p class="text-xs text-amber-600">少量晒斑痘印</p>
-                            </div>
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
                         </div>
-                        <div class="modern-tag bg-amber-100 border-amber-200">
-                            <span class="text-xs font-semibold text-amber-600">轻度</span>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">色素沉着</h4>
+                            <p class="text-xs text-gray-500">少量晒斑痘印</p>
                         </div>
                     </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-amber-400 to-orange-400" style="width: 25%"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-yellow-600">轻度</span>
                     </div>
-                    <p class="text-xs text-gray-600">建议加强防晒和美白护理</p>
                 </div>
                 
                 <!-- Fine Lines -->
-                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-100">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-eye text-purple-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm">细纹状况</h4>
-                                <p class="text-xs text-purple-600">眼周轻微细纹</p>
-                            </div>
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
                         </div>
-                        <div class="modern-tag bg-green-100 border-green-200">
-                            <span class="text-xs font-semibold text-green-600">良好</span>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">细纹状况</h4>
+                            <p class="text-xs text-gray-500">眼周轻微细纹</p>
                         </div>
                     </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-green-400 to-emerald-400" style="width: 15%"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-green-600">良好</span>
                     </div>
-                    <p class="text-xs text-gray-600">建议使用抗氧化眼霜</p>
                 </div>
                 
                 <!-- Sensitivity -->
-                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-shield-alt text-blue-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm">敏感程度</h4>
-                                <p class="text-xs text-blue-600">轻度敏感肌</p>
-                            </div>
+                <div class="flex items-center justify-between py-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <img src="D:\AI\AI_skin_car\test2\设置.svg" class="w-4 h-4" alt="icon">
                         </div>
-                        <div class="modern-tag bg-blue-100 border-blue-200">
-                            <span class="text-xs font-semibold text-blue-600">轻度</span>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-sm">敏感程度</h4>
+                            <p class="text-xs text-gray-500">轻度敏感肌</p>
                         </div>
                     </div>
-                    <div class="enhanced-progress mb-2">
-                        <div class="progress-fill bg-gradient-to-r from-blue-400 to-cyan-400" style="width: 35%"></div>
+                    <div class="flex items-center">
+                        <div class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-sm font-medium text-yellow-600">轻度</span>
                     </div>
-                    <p class="text-xs text-gray-600">建议选择温和无刺激产品</p>
                 </div>
             </div>
         </div>
 
         <!-- AI Recommendations -->
-        <div class="modern-card p-6 data-viz mb-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-brain text-blue-500 mr-3 icon-bounce"></i>
-                    AI智能护肤建议
-                </h3>
-                <div class="modern-tag px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100">
-                    <span class="text-xs font-medium gradient-text">个性化定制</span>
-                </div>
-            </div>
-            
-            <div class="space-y-5">
-                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-100 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-blue-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
-                    <div class="relative">
-                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
-                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-droplet text-white text-sm"></i>
-                            </div>
-                            清洁护理方案
-                        </h4>
-                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">基于您的混合偏油性肌肤特点，建议使用温和的氨基酸洁面乳，早晚各一次，避免过度清洁导致水油失衡。</p>
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium border border-blue-200">氨基酸洁面</span>
-                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium border border-blue-200">温和清洁</span>
-                            <span class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium border border-blue-200">pH平衡</span>
-                        </div>
-                        <div class="flex items-center text-xs text-blue-600">
-                            <i class="fas fa-clock mr-2"></i>
-                            <span>建议使用频率：早晚各1次</span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-5 border border-emerald-100 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
-                    <div class="relative">
-                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
-                            <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-leaf text-white text-sm"></i>
-                            </div>
-                            控油平衡护理
-                        </h4>
-                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">针对T区油脂分泌旺盛的问题，推荐使用含2%水杨酸的爽肤水，有效疏通毛孔，控制油脂分泌。</p>
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <span class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">2%水杨酸</span>
-                            <span class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">控油平衡</span>
-                            <span class="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium border border-emerald-200">疏通毛孔</span>
-                        </div>
-                        <div class="flex items-center text-xs text-emerald-600">
-                            <i class="fas fa-map-marker-alt mr-2"></i>
-                            <span>重点区域：T区（额头、鼻翼、下巴）</span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-amber-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
-                    <div class="relative">
-                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
-                            <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-sun text-white text-sm"></i>
-                            </div>
-                            防晒保护计划
-                        </h4>
-                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">每日使用SPF30+广谱防晒霜，预防紫外线损伤和色素沉着，特别注意补涂频率。</p>
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium border border-amber-200">SPF30+</span>
-                            <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium border border-amber-200">广谱防护</span>
-                            <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium border border-amber-200">抗氧化</span>
-                        </div>
-                        <div class="flex items-center text-xs text-amber-600">
-                            <i class="fas fa-redo mr-2"></i>
-                            <span>建议每2-3小时补涂一次</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 border border-purple-100 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-purple-200 rounded-full opacity-20 -mr-10 -mt-10"></div>
-                    <div class="relative">
-                        <h4 class="font-bold text-gray-800 text-base mb-3 flex items-center">
-                            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-heart text-white text-sm"></i>
-                            </div>
-                            保湿修护建议
-                        </h4>
-                        <p class="text-sm text-gray-700 mb-4 leading-relaxed">U区使用含透明质酸的保湿精华，维持肌肤水油平衡，避免外油内干的情况。</p>
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <span class="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">透明质酸</span>
-                            <span class="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">深层保湿</span>
-                            <span class="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">水油平衡</span>
-                        </div>
-                        <div class="flex items-center text-xs text-purple-600">
-                            <i class="fas fa-tint mr-2"></i>
-                            <span>重点护理：U区（两颊、眼周）</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Action Buttons -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <button class="group relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-5 rounded-2xl font-semibold text-base shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 flex items-center justify-center border border-blue-400">
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
-                <div class="relative flex items-center">
-                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-camera text-white text-sm"></i>
-                    </div>
-                    <span>重新检测</span>
-                </div>
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-            
-            <button class="group relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white py-5 rounded-2xl font-semibold text-base shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 flex items-center justify-center border border-emerald-400">
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
-                <div class="relative flex items-center">
-                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-share text-white text-sm"></i>
-                    </div>
-                    <span>分享报告</span>
-                </div>
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-        </div>
         
         <!-- 额外功能按钮 -->
        

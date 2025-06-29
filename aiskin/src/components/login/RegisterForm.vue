@@ -21,6 +21,24 @@
     </div>
 
     <div class="form-group">
+      <label for="gender">
+        <font-awesome-icon icon="venus-mars" />
+        性别
+      </label>
+      <div class="gender-selection">
+        <div class="gender-option" :class="{ 'selected': formData.gender === 'male' }" @click="selectGender('male')">
+          <font-awesome-icon icon="mars" />
+          <span>男生</span>
+        </div>
+        <div class="gender-option" :class="{ 'selected': formData.gender === 'female' }" @click="selectGender('female')">
+          <font-awesome-icon icon="venus" />
+          <span>女生</span>
+        </div>
+      </div>
+      <span v-if="validationErrors.gender" class="validation-error">{{ validationErrors.gender }}</span>
+    </div>
+
+    <div class="form-group">
       <label for="phone">
         <font-awesome-icon icon="mobile-alt" />
         手机号
@@ -116,6 +134,7 @@ export default {
         phone: '',
         password: '',
         confirmPassword: '',
+        gender: '',
         agreeTerms: false
       },
       validationErrors: {
@@ -123,6 +142,7 @@ export default {
         phone: '',
         password: '',
         confirmPassword: '',
+        gender: '',
         agreeTerms: ''
       },
       showPassword: false,
@@ -152,6 +172,7 @@ export default {
         phone: '',
         password: '',
         confirmPassword: '',
+        gender: '',
         agreeTerms: ''
       }
 
@@ -188,6 +209,12 @@ export default {
         isValid = false
       }
 
+      // 验证性别
+      if (!this.formData.gender) {
+        this.validationErrors.gender = '请选择性别'
+        isValid = false
+      }
+
       // 验证条款同意
       if (!this.formData.agreeTerms) {
         this.validationErrors.agreeTerms = '请阅读并同意条款和政策'
@@ -206,7 +233,8 @@ export default {
         const response = await authService.register({
           name: this.formData.name,
           phone: this.formData.phone,
-          password: this.formData.password
+          password: this.formData.password,
+          gender: this.formData.gender
         })
 
         if (response.success) {
@@ -227,6 +255,9 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    selectGender(gender) {
+      this.formData.gender = gender
     }
   }
 }
@@ -369,5 +400,45 @@ input:focus {
   color: #F8BBD0;
   font-weight: 600;
   text-decoration: none;
+}
+
+.gender-selection {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.gender-option {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.gender-option:hover {
+  border-color: #F8BBD0;
+  background-color: #fff;
+}
+
+.gender-option.selected {
+  border-color: #F8BBD0;
+  background: linear-gradient(to right, rgba(248, 187, 208, 0.1), rgba(225, 190, 231, 0.1));
+  color: #F8BBD0;
+}
+
+.gender-option svg {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.gender-option span {
+  font-weight: 500;
+  font-size: 0.875rem;
 }
 </style> 

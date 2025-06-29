@@ -40,8 +40,8 @@ export default {
   right: 0;
   background-color: rgba(255, 255, 255, 0.95);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 0.6rem 1rem;
-  z-index: 40;
+  padding: 0.4rem 1rem;
+  z-index: 1000;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -60,13 +60,13 @@ export default {
   color: #8E8E93;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.8rem;
   position: relative;
 }
 
 .nav-item svg {
-  font-size: 1.4rem;
-  margin-bottom: 0.3rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
 }
 
 .nav-item span {
@@ -83,17 +83,7 @@ export default {
   color: #34C759;
 }
 
-.nav-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: -0.6rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: #34C759;
-}
+
 
 @media (max-height: 650px) {
   .bottom-navigation {
@@ -109,4 +99,4 @@ export default {
     font-size: 0.7rem;
   }
 }
-</style> 
+</style>

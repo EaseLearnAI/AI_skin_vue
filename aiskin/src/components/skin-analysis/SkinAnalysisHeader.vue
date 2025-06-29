@@ -1,15 +1,15 @@
 <template>
-  <header class="skin-header">
-    <div class="header-content">
-      <button @click="$router.go(-1)" class="header-btn">
-        <font-awesome-icon icon="arrow-left" />
-      </button>
+  <header class="product-header">
+    <div class="header-container">
+      <a href="#" class="back-button" @click.prevent="$router.go(-1)">
+        <font-awesome-icon :icon="['fas', 'arrow-left']" />
+      </a>
       <h1 class="header-title">
-        <font-awesome-icon icon="camera" />
+        <font-awesome-icon :icon="['fas', 'paw']" class="header-icon" />
         肌肤检测
       </h1>
-      <button @click="$emit('showHistory')" class="header-btn">
-        <font-awesome-icon icon="history" />
+      <button class="menu-button" @click="$emit('showHistory')">
+        <font-awesome-icon :icon="['fas', 'history']" />
       </button>
     </div>
   </header>
@@ -23,40 +23,67 @@ export default {
 </script>
 
 <style scoped>
-.skin-header {
-  background: linear-gradient(to right, #F8BBD0, #E1BEE7);
-  padding: 1rem;
+.product-header {
+  background: linear-gradient(135deg, #f8bbd0, #e1bee7);
+  padding: 1rem 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 10;
 }
 
-.header-content {
+.header-container {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  max-width: 430px;
+  align-items: center;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.header-btn {
+.back-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
-  background: none;
-  border: none;
-  font-size: 1.125rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  padding: 0.5rem;
+  transition: all 0.3s ease;
 }
 
-.header-btn:hover {
-  color: #FFF9FB;
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
 }
 
 .header-title {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: white;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0;
 }
-</style> 
+
+.header-icon {
+  margin-right: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.menu-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+</style>

@@ -8,7 +8,7 @@
         </a>
         <h1 class="header-title">
           <font-awesome-icon :icon="['fas', 'paw']" class="header-icon" />
-          猫窝产品库
+          护肤产品库
         </h1>
         <button class="menu-button">
           <font-awesome-icon :icon="['fas', 'ellipsis-v']" />
@@ -131,8 +131,8 @@
                 <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="option-icon" />
               </div>
               <div class="option-content">
-                <span class="option-title">产品冲突成分检测</span>
-                <span class="option-description">检测产品成分间潜在冲突</span>
+                <span class="option-title">产品混用检测</span>
+                <span class="option-description">确保混用安全</span>
               </div>
             </button>
           </div>
@@ -815,7 +815,7 @@ export default {
 
 .product-header {
   background: linear-gradient(135deg, #f8bbd0, #e1bee7);
-  padding: 1.25rem 1rem;
+  padding: 1rem 1rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   position: relative;
   z-index: 10;
@@ -1598,7 +1598,7 @@ export default {
 
 /* Add Product Component */
 .add-product-container {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .add-product-card {

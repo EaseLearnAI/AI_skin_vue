@@ -11,21 +11,50 @@ const getAuthHeader = () => {
 }
 
 /**
- * 创建个性化护肤方案
- * @param {Object} data - 包含护肤需求
- * @returns {Promise} - API 响应
+ * Create a new plan
+ * @param {Object} planData - Plan data including userId, age, skinConcerns, customRequirements
+ * @returns {Promise} - API response
  */
-export const createPlan = (data) => {
-  console.log('🔍 护肤方案请求: 创建方案', data)
-  return axios.post(`${API_URL}/plans`, data, getAuthHeader())
-    .then(response => {
-      console.log('✅ 护肤方案响应: 创建成功', response.data)
-      return response.data
-    })
-    .catch(error => {
-      console.error('❌ 护肤方案错误:', error.response ? error.response.data : error.message)
-      throw error
-    })
+export const createPlan = async (planData) => {
+  console.group('🎯 创建个性化护肤方案');
+  console.log('📡 API请求: 创建方案');
+  console.log('🔗 请求URL:', `${API_URL}/plans`);
+  console.log('📊 请求数据:', planData);
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/plans`,
+      planData,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log('✅ 方案创建成功');
+    console.log('📋 方案详情:', {
+      方案ID: response.data.data?.plan?._id,
+      用户年龄: response.data.data?.plan?.userAge,
+      护肤需求: response.data.data?.plan?.skinConcerns,
+      早晨步骤: response.data.data?.plan?.morning?.length || 0,
+      晚间步骤: response.data.data?.plan?.evening?.length || 0
+    });
+    console.log('📋 完整响应数据:', response.data);
+    console.groupEnd();
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ 创建方案失败');
+    console.error('🚨 错误详情:', {
+      状态码: error.response?.status,
+      错误信息: error.response?.data?.message || error.message,
+      请求数据: planData
+    });
+    console.groupEnd();
+    throw error;
+  }
 }
 
 /**

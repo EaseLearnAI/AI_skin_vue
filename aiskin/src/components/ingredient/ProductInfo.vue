@@ -1,19 +1,11 @@
 <template>
   <div class="product-info">
-    <div class="flex items-start space-x-4">
+    <div class="product-container">
       <img :src="product.imageUrl || 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=200'" 
            :alt="product.name" 
            class="product-image">
-      <div class="flex-1">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <h2 class="product-title">{{ product.name }}</h2>
-            <p class="product-description">{{ product.description }}</p>
-          </div>
-          <button class="favorite-button" @click="toggleFavorite">
-            <font-awesome-icon :icon="['fas', 'heart']" />
-          </button>
-        </div>
+      <div class="product-details">
+        <h2 class="product-title">{{ product.name }}</h2>
         <div class="product-tags">
           <span v-for="(tag, index) in productTags" :key="index" class="product-tag">
             <font-awesome-icon :icon="['fas', tag.icon]" class="tag-icon" />
@@ -71,18 +63,32 @@ export default {
   margin-bottom: 1.25rem;
 }
 
+.product-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .product-image {
   width: 6rem;
   height: 6rem;
   border-radius: 0.5rem;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-title {
-  font-size: 1.125rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
   color: #333;
+  line-height: 1.3;
 }
 
 .product-description {
@@ -104,6 +110,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .product-tag {
@@ -127,4 +134,4 @@ export default {
 .tag-icon {
   margin-right: 0.25rem;
 }
-</style> 
+</style>

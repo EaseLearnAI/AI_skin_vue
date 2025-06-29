@@ -80,14 +80,11 @@
         </div>
       </div>
     </AppModal>
-    
-    <BottomNavigation />
   </div>
 </template>
 
 <script>
 
-import BottomNavigation from '@/components/common/BottomNavigation.vue'
 import ProductInfo from '@/components/ingredient/ProductInfo.vue'
 import AnalysisOverview from '@/components/ingredient/AnalysisOverview.vue'
 import AnalysisSummary from '@/components/ingredient/AnalysisSummary.vue'
@@ -99,7 +96,6 @@ import productApi from '@/api/productApi'
 export default {
   name: 'IngredientView',
   components: {
-    BottomNavigation,
     ProductInfo,
     AnalysisOverview,
     AnalysisSummary,
@@ -232,6 +228,9 @@ export default {
         this.showTagModal = false
         this.loading = false
         
+        // Navigate to product analysis page
+        this.$router.push('/product')
+        
         // Show success message (implement toast or notification if needed)
         console.log('✅ 产品信息保存成功')
       } catch (error) {
@@ -275,6 +274,11 @@ export default {
 }
 
 .ingredient-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   background: linear-gradient(to right, #4CAF50, #2196F3);
   padding: 1rem;
 }
@@ -286,8 +290,8 @@ export default {
 }
 
 .back-button, .share-button {
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -295,6 +299,7 @@ export default {
   background: none;
   border: none;
   cursor: pointer;
+  font-size: 1.125rem;
 }
 
 .header-title {
@@ -306,6 +311,8 @@ export default {
 
 .main-content {
   padding: 1rem;
+  margin-top: 4rem;
+  padding-bottom: 0rem;
 }
 
 .loading-container, .error-container {
@@ -348,12 +355,13 @@ export default {
 
 .action-buttons {
   position: fixed;
-  bottom: 4.5rem;
+  bottom: 0;
   left: 0;
   right: 0;
   padding: 1rem;
   background-color: white;
   border-top: 1px solid #eeeeee;
+  z-index: 999;
 }
 
 .action-group {
@@ -445,4 +453,4 @@ export default {
   color: white;
   border: none;
 }
-</style> 
+</style>

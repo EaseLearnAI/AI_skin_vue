@@ -207,6 +207,48 @@ const skinAnalysisApi = {
   },
 
   /**
+   * Get user's latest skin analysis
+   * @returns {Promise} - API response with latest analysis
+   */
+  async getLatestAnalysis() {
+    console.group('🔍 获取最新分析');
+    console.log('📡 API请求: 获取最新分析');
+    console.log('🔗 请求URL:', `${API_URL}/skin-analysis/latest`);
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/skin-analysis/latest`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      console.log('✅ 最新分析获取成功');
+      console.log('📊 最新分析数据:', {
+        分析ID: response.data.data?.analysis?._id,
+        创建时间: response.data.data?.analysis?.createdAt,
+        健康评分: response.data.data?.analysis?.overallAssessment?.healthScore,
+        皮肤类型: response.data.data?.analysis?.skinType?.type,
+        皮肤状况: response.data.data?.analysis?.overallAssessment?.skinCondition
+      });
+      console.log('📋 完整响应数据:', response.data);
+      console.groupEnd();
+
+      return response.data;
+    } catch (error) {
+      console.error('❌ 获取最新分析失败');
+      console.error('🚨 错误详情:', {
+        状态码: error.response?.status,
+        错误信息: error.response?.data?.message || error.message
+      });
+      console.groupEnd();
+      throw error;
+    }
+  },
+
+  /**
    * Delete skin analysis record
    * @param {String} analysisId - Analysis ID
    * @returns {Promise} - API response

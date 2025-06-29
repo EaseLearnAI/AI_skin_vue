@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>护肤小助手 - 我的</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        },
+                        accent: {
+                            50: '#f7fee7',
+                            100: '#ecfccb',
+                            200: '#d9f99d',
+                            300: '#bef264',
+                            400: '#a3e635',
+                            500: '#84cc16',
+                            600: '#65a30d',
+                            700: '#4d7c0f',
+                            800: '#365314',
+                            900: '#1a2e05',
+                        }
+                    },
+                    fontFamily: {
+                        'sf': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'ios': '12px',
+                        'ios-lg': '16px',
+                        'ios-xl': '20px',
+                    },
+                    boxShadow: {
+                        'ios': '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                        'ios-lg': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        'ios-xl': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* iPhone 16 Pro Max 适配 */
+        .phone-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 932px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 916px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 状态栏样式 */
+        .status-bar {
+            height: 54px;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* 动态岛 */
+        .dynamic-island {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px;
+            height: 30px;
+            background: #000;
+            border-radius: 15px;
+            z-index: 1000;
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            height: calc(100% - 54px);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        /* 导航栏 */
+        .nav-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        /* 卡片样式 */
+        .ios-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin: 16px;
+            overflow: hidden;
+        }
+        
+        /* 头像发光效果 */
+        .avatar-glow {
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+        }
+        
+        /* 进度条动画 */
+        @keyframes progressFill {
+            from { width: 0; }
+            to { width: var(--progress-width); }
+        }
+        
+        .progress-bar {
+            position: relative;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0ea5e9, #ec4899);
+            border-radius: 3px;
+            width: var(--progress-width, 0%);
+            animation: progressFill 2s ease-out;
+        }
+        
+        /* 成就卡片悬停效果 */
+        .achievement-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 统计数字动画 */
+        @keyframes countUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .stat-number {
+            animation: countUp 0.8s ease-out;
+        }
+        
+        /* 设置项悬停效果 */
+        .setting-item {
+            transition: all 0.2s ease;
+        }
+        
+        .setting-item:hover {
+            background: rgba(14, 165, 233, 0.05);
+            transform: translateX(4px);
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 12px 0 34px 0; /* 为Home Indicator留出空间 */
+        }
+        
+        /* Home Indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2.5px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 430px) {
+            .phone-container {
+                max-width: 100vw;
+                min-height: 100vh;
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+            
+            .phone-screen {
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+        
+        /* 毛玻璃效果 */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        /* 渐变文字 */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 脉冲动画 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="font-sf bg-gray-100">
+    <div class="phone-container">
+        <div class="phone-screen">
+            <!-- 动态岛 -->
+ 
+            
+            <!-- 状态栏 -->
+
+            
+            <!-- 主内容区域 -->
+            <div class="main-content">
+                <!-- 导航栏 -->
+                <div class="nav-header">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-xl font-bold gradient-text flex items-center">
+                            <i class="fas fa-user-circle mr-3 text-primary-500"></i>
+                            我的护肤档案
+                        </h1>
+                        <button class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-primary-600 transition-colors">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 个人资料卡片 -->
+                <div class="ios-card p-6 mb-5">
+                    <div class="flex items-center mb-6">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" 
+                                 alt="用户头像" 
+                                 class="w-24 h-24 rounded-full border-4 border-white shadow-lg avatar-glow object-cover">
+                            <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                                <span>25</span>
+                            </div>
+                        </div>
+                        <div class="ml-6 flex-1">
+                            <div class="flex items-center justify-between mb-3">
+                                <h2 class="text-xl font-bold text-gray-800">林小美</h2>
+                                <div class="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-xs rounded-full flex items-center shadow-lg">
+                                    <i class="fas fa-crown mr-2"></i>
+                                    <span class="font-semibold">护肤达人</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mb-3">
+                                <div class="progress-fill" style="--progress-width: 75%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-600 font-medium">Lv.25 护肤专家</span>
+                                <span class="text-primary-600 font-medium">距离下一级还需 250 经验</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl shadow-ios">
+                            <div class="text-2xl font-bold text-primary-600 stat-number">28</div>
+                            <div class="text-xs font-medium text-gray-600 mt-1">已用产品</div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl shadow-ios">
+                            <div class="text-2xl font-bold text-accent-600 stat-number">15</div>
+                            <div class="text-xs font-medium text-gray-600 mt-1">护肤天数</div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 rounded-xl shadow-ios">
+                            <div class="text-2xl font-bold text-secondary-600 stat-number">8</div>
+                            <div class="text-xs font-medium text-gray-600 mt-1">成就徽章</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成就徽章 -->
+                <div class="ios-card p-6 mb-5">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">成就徽章</h3>
+                        <span class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">8/12</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">新手上路</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-primary-400 to-primary-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">护肤达人</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-accent-400 to-accent-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">天然主义</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-secondary-400 to-secondary-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">精致生活</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-water"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">补水专家</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">防晒卫士</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">美肌魔法</div>
+                        </div>
+                        <div class="text-center achievement-card">
+                            <div class="w-14 h-14 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center text-white text-xl mb-3 mx-auto shadow-ios">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="text-xs font-medium text-gray-700">抗老先锋</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设置选项 -->
+                <div class="ios-card p-6 mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">设置</h3>
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between p-4 setting-item rounded-xl">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-ios">
+                                    <i class="fas fa-bell text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-base font-medium text-gray-800">消息通知</div>
+                                    <div class="text-xs text-gray-500">管理推送通知设置</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-4 setting-item rounded-xl">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center mr-4 shadow-ios">
+                                    <i class="fas fa-palette text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-base font-medium text-gray-800">主题设置</div>
+                                    <div class="text-xs text-gray-500">个性化界面主题</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-4 setting-item rounded-xl">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center mr-4 shadow-ios">
+                                    <i class="fas fa-shield-alt text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-base font-medium text-gray-800">隐私设置</div>
+                                    <div class="text-xs text-gray-500">数据隐私与安全</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-4 setting-item rounded-xl">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-ios">
+                                    <i class="fas fa-question-circle text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-base font-medium text-gray-800">帮助与反馈</div>
+                                    <div class="text-xs text-gray-500">常见问题与意见反馈</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-4 setting-item rounded-xl">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mr-4 shadow-ios">
+                                    <i class="fas fa-info-circle text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-base font-medium text-gray-800">关于我们</div>
+                                    <div class="text-xs text-gray-500">版本信息与团队介绍</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 底部导航栏 -->
+
+                
+                <!-- Home Indicator -->
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加页面加载动画
+            const cards = document.querySelectorAll('.ios-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+
+            // 统计数字动画
+            setTimeout(() => {
+                animateNumbers();
+            }, 800);
+        });
+
+        // 成就卡片交互效果
+        document.querySelectorAll('.achievement-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // 统计数字动画
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-number');
+            numbers.forEach(number => {
+                const target = parseInt(number.textContent);
+                let current = 0;
+                const increment = target / 40;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    number.textContent = Math.floor(current);
+                }, 40);
+            });
+        }
+
+        // 设置项交互效果
+        document.querySelectorAll('.setting-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 添加点击反馈
+                this.style.transform = 'scale(0.98)';
+                this.style.backgroundColor = 'rgba(99, 102, 241, 0.1)';
+                
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                    this.style.backgroundColor = 'transparent';
+                }, 200);
+            });
+        });
+
+        // 头像点击效果
+        document.querySelector('.avatar-glow').addEventListener('click', function() {
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 300);
+        });
+
+        // 进度条动画
+        setTimeout(() => {
+            const progressFill = document.querySelector('.progress-fill');
+            if (progressFill) {
+                progressFill.style.width = '75%';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

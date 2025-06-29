@@ -87,6 +87,9 @@ export default {
         tag: this.selectedTag,
         openingDate: this.openingDate ? new Date(this.openingDate).toISOString() : null
       });
+      
+      // Navigate to product analysis page after confirmation
+      this.$router.push('/product');
     }
   }
 }

@@ -266,4 +266,31 @@ export default {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
+
+/* 宽屏布局优化 */
+@media (min-width: 768px) {
+  .detection-options {
+    gap: 1.5rem;
+  }
+  
+  .detection-btn {
+    padding: 2rem 1.5rem;
+  }
+  
+  .feature-highlights {
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+}
+
+/* 响应式设计优化 */
+@media (max-width: 767px) {
+  .welcome-card {
+    margin-bottom: 1rem;
+  }
+  
+  .detection-options {
+    gap: 1rem;
+  }
+}
 </style> 

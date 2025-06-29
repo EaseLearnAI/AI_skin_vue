@@ -58,16 +58,12 @@
           :poreLevel="analysisResult.poreLevel"
         />
         
-        <!-- Detailed Analysis Grid -->
-        <DetailedAnalysisGrid 
+        <!-- Skin Status Overview (整合的组件) -->
+        <SkinStatusOverview 
           :blackheads="analysisResult.blackheads"
           :acne="analysisResult.acne"
           :pores="analysisResult.pores"
           :skinToneEvenness="analysisResult.otherIssues?.skinToneEvenness"
-        />
-        
-        <!-- Other Issues -->
-        <OtherIssues 
           :redness="analysisResult.otherIssues?.redness"
           :hyperpigmentation="analysisResult.otherIssues?.hyperpigmentation"
           :fineLines="analysisResult.otherIssues?.fineLines"
@@ -79,8 +75,7 @@
 
       </div>
 
-      <!-- 底部间距，避免被导航栏遮挡 -->
-      <div class="bottom-spacer"></div>
+
     </div>
     
     <!-- Analyzing Modal - 悬浮于整个页面 -->
@@ -151,8 +146,7 @@ import SkinAnalysisHeader from '@/components/skin-analysis/SkinAnalysisHeader.vu
 import SkinDetectionWelcome from '@/components/skin-analysis/SkinDetectionWelcome.vue'
 import HealthScoreCard from '@/components/skin-analysis/HealthScoreCard.vue'
 import SkinTypeAnalysis from '@/components/skin-analysis/SkinTypeAnalysis.vue'
-import DetailedAnalysisGrid from '@/components/skin-analysis/DetailedAnalysisGrid.vue'
-import OtherIssues from '@/components/skin-analysis/OtherIssues.vue'
+import SkinStatusOverview from '@/components/skin-analysis/SkinStatusOverview.vue'
 import AIRecommendations from '@/components/skin-analysis/AIRecommendations.vue'
 
 import BottomNavigation from '@/components/common/BottomNavigation.vue'
@@ -165,8 +159,7 @@ export default {
     SkinDetectionWelcome,
     HealthScoreCard,
     SkinTypeAnalysis,
-    DetailedAnalysisGrid,
-    OtherIssues,
+    SkinStatusOverview,
     AIRecommendations,
 
     BottomNavigation
@@ -500,9 +493,10 @@ export default {
 }
 
 .main-content {
-  padding: 1rem 1rem 1rem 1rem;
-  max-width: 430px;
+  padding: 1rem 0.5rem 1rem 0.5rem;
+  max-width: 800px;
   margin: 0 auto;
+  width: 100%;
 }
 
 /* 历史结果区域 */
@@ -877,9 +871,7 @@ export default {
 }
 
 /* 底部间距样式 */
-.bottom-spacer {
-  height: 80px; /* 为底部导航栏留出空间 */
-}
+
 
 /* 错误提示 */
 .error-toast {
@@ -928,6 +920,20 @@ export default {
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .main-content {
+    padding: 0.75rem;
   }
 }
 </style>

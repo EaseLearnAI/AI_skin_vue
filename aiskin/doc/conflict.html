@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成分冲突检测 - 智能护肤助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        success: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        warning: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        },
+                        danger: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                        },
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                        'pulse-gentle': 'pulseGentle 2s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes pulseGentle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+        }
+        
+        .btn-secondary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        
+        .tab-button {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0ea5e9, #0284c7);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .tab-button.active::after {
+            width: 24px;
+        }
+        
+        .status-indicator {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        .interactive-element {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        .interactive-element:active {
+            transform: scale(0.98);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 50;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @media (max-width: 640px) {
+            .text-responsive { font-size: 0.875rem; }
+            .card-padding { padding: 1rem; }
+        }
+        
+        @media (min-width: 641px) {
+            .card-padding { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-neutral-50 to-neutral-100 font-sans min-h-screen">
+    <!-- Status Bar -->
+    <div class="safe-area-top bg-white/80 backdrop-blur-xl px-4 py-2 flex justify-between items-center text-gray-700 text-sm border-b border-gray-100">
+        <div class="flex items-center space-x-1">
+            <span class="font-medium">9:41</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-signal text-xs"></i>
+            <i class="fas fa-wifi text-xs"></i>
+            <div class="flex items-center">
+                <i class="fas fa-battery-three-quarters text-xs"></i>
+                <span class="text-xs ml-1">85%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-xl border-b border-neutral-200/50 sticky top-0 z-50">
+        <div class="flex items-center justify-between px-5 py-4">
+            <div class="flex items-center space-x-4">
+                <button onclick="goToProducts()" class="interactive-element p-2.5 rounded-xl hover:bg-neutral-100 transition-all duration-300">
+                    <i class="fas fa-arrow-left text-neutral-700 text-lg"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold gradient-text">成分冲突检测</h1>
+                    <p class="text-xs text-neutral-500 mt-0.5">智能分析·安全护肤</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1">
+                <button class="interactive-element p-2.5 rounded-xl hover:bg-neutral-100 transition-all duration-300">
+                    <i class="fas fa-share-alt text-neutral-600"></i>
+                </button>
+                <button class="interactive-element p-2.5 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all duration-300">
+                    <i class="fas fa-heart text-neutral-600"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="bg-white/90 backdrop-blur-xl border-b border-neutral-200/50 sticky top-20 z-40">
+        <div class="flex px-2 mx-4">
+            <button onclick="switchTab('overview')" class="tab-button interactive-element flex-1 py-4 text-center text-sm font-semibold text-primary-600 active" data-tab="overview">
+                <i class="fas fa-chart-pie text-xs mr-1.5"></i>
+                概览
+            </button>
+            <button onclick="switchTab('conflicts')" class="tab-button interactive-element flex-1 py-4 text-center text-sm font-medium text-neutral-500 hover:text-neutral-700 tab-indicator" data-tab="conflicts">
+                <i class="fas fa-exclamation-triangle text-xs mr-1.5"></i>
+                冲突
+            </button>
+            <button onclick="switchTab('safe')" class="tab-button interactive-element flex-1 py-4 text-center text-sm font-medium text-neutral-500 hover:text-neutral-700 tab-indicator" data-tab="safe">
+                <i class="fas fa-shield-alt text-xs mr-1.5"></i>
+                安全组合
+            </button>
+            <button onclick="switchTab('routine')" class="tab-button interactive-element flex-1 py-4 text-center text-sm font-medium text-neutral-500 hover:text-neutral-700 tab-indicator" data-tab="routine">
+                <i class="fas fa-lightbulb text-xs mr-1.5"></i>
+                使用建议
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pb-24">
+        <!-- Integrated Content Page -->
+        <div class="px-5 py-4">
+            <!-- Overview Section -->
+            <!-- Selected Products Section -->
+            <section id="products-section" class="mb-1">
+                <div class="glass-card rounded-2xl card-padding overflow-hidden">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-shopping-bag text-primary-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-neutral-900">已选择产品</h2>
+                                <p class="text-xs text-neutral-500">当前分析的护肤品</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-neutral-500 bg-neutral-100 px-3 py-1.5 rounded-full font-medium">4 件产品</span>
+                            <button onclick="toggleProducts()" class="interactive-element text-neutral-400 hover:text-primary-500 transition-colors p-2 rounded-lg">
+                                <i id="toggle-icon" class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="products-list" class="space-y-3">
+                        <div class="flex items-center p-4 bg-gradient-to-r from-neutral-50 to-neutral-100/50 rounded-xl card-hover">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=100&h=100&fit=crop&crop=center" 
+                                     alt="雅诗兰黛特润修护肌透精华露" 
+                                     class="w-16 h-16 rounded-xl object-cover shadow-sm">
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-warning-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation text-white text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1 ml-4 min-w-0">
+                                <h3 class="text-sm font-semibold text-neutral-900 truncate">雅诗兰黛特润修护肌透精华露</h3>
+                                <div class="flex items-center mt-1">
+                                    <span class="text-xs text-neutral-500">修护精华 · 保湿抗老</span>
+                                </div>
+                                <div class="flex items-center mt-2 space-x-1">
+                                    <span class="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-medium">透明质酸钠</span>
+                                    <span class="text-xs bg-success-100 text-success-700 px-2 py-1 rounded-full font-medium">二裂酵母</span>
+                                </div>
+                            </div>
+                            <button class="interactive-element text-neutral-400 hover:text-danger-500 transition-colors p-2.5 rounded-xl hover:bg-danger-50">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="hidden-products" style="display: none;">
+                            <div class="flex items-center p-4 bg-gradient-to-r from-neutral-50 to-neutral-100/50 rounded-xl card-hover">
+                                <div class="relative">
+                                    <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=100&h=100&fit=crop&crop=center" 
+                                         alt="控油亮白洁面膏" 
+                                         class="w-16 h-16 rounded-xl object-cover shadow-sm">
+                                    <div class="absolute -top-1 -right-1 w-5 h-5 bg-danger-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-exclamation-triangle text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1 ml-4 min-w-0">
+                                    <h3 class="text-sm font-semibold text-neutral-900 truncate">控油亮白洁面膏</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs text-neutral-500">洁面产品 · 控油清洁</span>
+                                    </div>
+                                    <div class="flex items-center mt-2 space-x-1">
+                                        <span class="text-xs bg-warning-100 text-warning-700 px-2 py-1 rounded-full font-medium">水杨酸</span>
+                                        <span class="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-medium">烟酰胺</span>
+                                    </div>
+                                </div>
+                                <button class="interactive-element text-neutral-400 hover:text-danger-500 transition-colors p-2.5 rounded-xl hover:bg-danger-50">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center p-4 bg-gradient-to-r from-neutral-50 to-neutral-100/50 rounded-xl card-hover">
+                                <div class="relative">
+                                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop&crop=center" 
+                                         alt="Clorisland® 毛孔焕净泡泡泥膜" 
+                                         class="w-16 h-16 rounded-xl object-cover shadow-sm">
+                                    <div class="absolute -top-1 -right-1 w-5 h-5 bg-warning-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-exclamation text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1 ml-4 min-w-0">
+                                    <h3 class="text-sm font-semibold text-neutral-900 truncate">Clorisland® 毛孔焕净泡泡泥膜</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs text-neutral-500">清洁面膜 · 毛孔护理</span>
+                                    </div>
+                                    <div class="flex items-center mt-2 space-x-1">
+                                        <span class="text-xs bg-neutral-100 text-neutral-700 px-2 py-1 rounded-full font-medium">苯氧乙醇</span>
+                                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">EPA</span>
+                                    </div>
+                                </div>
+                                <button class="interactive-element text-neutral-400 hover:text-danger-500 transition-colors p-2.5 rounded-xl hover:bg-danger-50">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center p-4 bg-gradient-to-r from-neutral-50 to-neutral-100/50 rounded-xl card-hover">
+                                <div class="relative">
+                                    <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=100&h=100&fit=crop&crop=center" 
+                                         alt="欧莱雅男士水能保湿酷爽水凝露" 
+                                         class="w-16 h-16 rounded-xl object-cover shadow-sm">
+                                    <div class="absolute -top-1 -right-1 w-5 h-5 bg-success-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-check text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1 ml-4 min-w-0">
+                                    <h3 class="text-sm font-semibold text-neutral-900 truncate">欧莱雅男士水能保湿酷爽水凝露</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs text-neutral-500">保湿产品 · 水润清爽</span>
+                                    </div>
+                                    <div class="flex items-center mt-2 space-x-1">
+                                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">甘油</span>
+                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">维生素E</span>
+                                    </div>
+                                </div>
+                                <button class="interactive-element text-neutral-400 hover:text-danger-500 transition-colors p-2.5 rounded-xl hover:bg-danger-50">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Analysis Result -->
+            <section id="overview-section" class="px-5 mb-4">
+                <div class="glass-card rounded-2xl card-padding overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-warning-100 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-exclamation-triangle text-warning-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-neutral-900">分析结果</h2>
+                                <p class="text-xs text-neutral-500">成分冲突检测报告</p>
+                            </div>
+                        </div>
+                        <div class="status-indicator bg-warning-100 text-warning-700 px-4 py-2 rounded-full">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span class="font-semibold">警告</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-3 gap-4 mb-2">
+                        <div class="text-center p-4 bg-gradient-to-br from-danger-50 to-danger-100/50 rounded-xl">
+                            <div class="text-2xl font-bold text-danger-600 mb-1">1</div>
+                            <div class="text-xs text-danger-700 font-medium">严重冲突</div>
+                        </div>
+                        <div class="text-center p-4 bg-gradient-to-br from-warning-50 to-warning-100/50 rounded-xl">
+                            <div class="text-2xl font-bold text-warning-600 mb-1">2</div>
+                            <div class="text-xs text-warning-700 font-medium">轻微冲突</div>
+                        </div>
+                        <div class="text-center p-4 bg-gradient-to-br from-success-50 to-success-100/50 rounded-xl">
+                            <div class="text-2xl font-bold text-success-600 mb-1">3</div>
+                            <div class="text-xs text-success-700 font-medium">安全组合</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conflicts Section -->
+            <section id="conflicts-section" class="px-5 mb-4">
+                <div class="glass-card rounded-2xl card-padding">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-danger-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-exclamation-triangle text-danger-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-neutral-900">冲突检测</h2>
+                            <p class="text-sm text-neutral-600">发现的成分冲突和注意事项</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Conflict Item 1 -->
+                        <div class="bg-gradient-to-r from-danger-50 to-warning-50 rounded-xl p-5 border border-danger-200">
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 bg-danger-500 rounded-lg flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-times text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-danger-800 mb-2">维A酸 × 水杨酸</h3>
+                                    <p class="text-sm text-danger-700 mb-3">同时使用可能导致皮肤过度刺激，建议分开使用或降低浓度</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="text-xs bg-danger-100 text-danger-700 px-3 py-1.5 rounded-full font-medium">刺激性</span>
+                                        <span class="text-xs bg-warning-100 text-warning-700 px-3 py-1.5 rounded-full font-medium">敏感肌慎用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conflict Item 2 -->
+                        <div class="bg-gradient-to-r from-warning-50 to-orange-50 rounded-xl p-5 border border-warning-200">
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 bg-warning-500 rounded-lg flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-exclamation text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-warning-800 mb-2">pH值不匹配</h3>
+                                    <p class="text-sm text-warning-700 mb-3">部分产品pH值差异较大，可能影响活性成分效果</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="text-xs bg-warning-100 text-warning-700 px-3 py-1.5 rounded-full font-medium">效果降低</span>
+                                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full font-medium">间隔使用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Safe Combinations Section -->
+            <section id="safe-section" class="px-5 mb-6">
+                <div class="glass-card rounded-2xl card-padding">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-success-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-shield-alt text-success-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-neutral-900">安全组合推荐</h2>
+                            <p class="text-sm text-neutral-600">经过验证的安全成分搭配</p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4">
+                        <!-- Safe Combo 1 -->
+                        <div class="bg-gradient-to-r from-success-50 to-emerald-50 rounded-xl p-5 border border-success-200">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 bg-success-500 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-check text-white text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-success-800">透明质酸钠 + 二裂酵母</h3>
+                            </div>
+                            <p class="text-sm text-success-700 mb-3">深层保湿与修护的完美结合，适合所有肌肤类型</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-success-100 text-success-700 px-3 py-1.5 rounded-full font-medium">保湿修护</span>
+                                <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-medium">温和安全</span>
+                            </div>
+                        </div>
+
+                        <!-- Safe Combo 2 -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-200">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-check text-white text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-blue-800">甘油 + 维生素E</h3>
+                            </div>
+                            <p class="text-sm text-blue-700 mb-3">经典保湿抗氧化组合，增强肌肤屏障功能</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full font-medium">抗氧化</span>
+                                <span class="text-xs bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded-full font-medium">屏障修护</span>
+                            </div>
+                        </div>
+
+                        <!-- Safe Combo 3 -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-check text-white text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-purple-800">二裂酵母 + 维生素E</h3>
+                            </div>
+                            <p class="text-sm text-purple-700 mb-3">修护与抗氧化的强效搭配，提升肌肤自愈能力</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-medium">深层修护</span>
+                                <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-medium">抗老化</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Usage Recommendations Section -->
+            <section id="routine-section" class="px-5 mb-6">
+                <div class="glass-card rounded-2xl card-padding">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-clock text-primary-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-neutral-900">使用建议</h2>
+                            <p class="text-sm text-neutral-600">个性化护肤方案推荐</p>
+                        </div>
+                    </div>
+
+                    <!-- Important Reminders -->
+                    <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-5 border border-amber-200 mb-6">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center mr-4 mt-1">
+                                <i class="fas fa-lightbulb text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-amber-800 mb-3">重要提醒</h3>
+                                <ul class="space-y-2 text-sm text-amber-700">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-circle text-amber-500 text-xs mt-2 mr-3"></i>
+                                        <span>首次使用新产品时，建议先在手腕内侧进行过敏测试</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-circle text-amber-500 text-xs mt-2 mr-3"></i>
+                                        <span>含有活性成分的产品应避免同时大量使用</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-circle text-amber-500 text-xs mt-2 mr-3"></i>
+                                        <span>使用含酸类成分的产品时，务必做好防晒工作</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usage Schedule -->
+                    <div class="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl p-5 border border-primary-200">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center mr-4 mt-1">
+                                <i class="fas fa-calendar-alt text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-primary-800 mb-3">建议使用方案</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-white rounded-lg p-4 border border-primary-100">
+                                        <h4 class="font-semibold text-primary-700 mb-2">🌅 晨间护理</h4>
+                                        <ol class="space-y-1 text-sm text-primary-600">
+                                            <li>1. 温和洁面</li>
+                                            <li>2. 保湿精华（透明质酸钠）</li>
+                                            <li>3. 防晒霜（SPF30+）</li>
+                                        </ol>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 border border-primary-100">
+                                        <h4 class="font-semibold text-primary-700 mb-2">🌙 晚间护理</h4>
+                                        <ol class="space-y-1 text-sm text-primary-600">
+                                            <li>1. 深层清洁</li>
+                                            <li>2. 修护精华（二裂酵母）</li>
+                                            <li>3. 保湿面霜</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Action Buttons -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-neutral-200/50 safe-area-bottom">
+        <div class="px-5 py-4">
+            <div class="flex space-x-3">
+                <button onclick="goToProducts()" class="btn-secondary interactive-element flex-1 py-4 px-6 rounded-2xl font-semibold text-neutral-700 bg-neutral-100 border border-neutral-200">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    返回产品库
+                </button>
+                <button class="btn-primary interactive-element flex-1 py-4 px-6 rounded-2xl font-semibold text-white shadow-lg">
+                    导出报告
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        // Tab 切换功能 - 页面内跳转
+        function switchTab(tabName) {
+            // 移除所有 tab 按钮的 active 状态
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('text-primary-600', 'font-semibold', 'active');
+                button.classList.add('text-neutral-500', 'font-medium');
+            });
+            
+            // 激活选中的 tab 按钮
+            const activeButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+            if (activeButton) {
+                activeButton.classList.remove('text-neutral-500', 'font-medium');
+                activeButton.classList.add('text-primary-600', 'font-semibold', 'active');
+            }
+            
+            // 滚动到对应的内容区域
+            let targetElement;
+            switch(tabName) {
+                case 'overview':
+                    targetElement = document.querySelector('#overview-section');
+                    break;
+                case 'conflicts':
+                    targetElement = document.querySelector('#conflicts-section');
+                    break;
+                case 'safe':
+                    targetElement = document.querySelector('#safe-section');
+                    break;
+                case 'routine':
+                    targetElement = document.querySelector('#routine-section');
+                    break;
+            }
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                });
+            }
+            
+            // 添加触觉反馈
+            addHapticFeedback();
+        }
+        
+        // 产品折叠功能
+         function toggleProducts() {
+             const hiddenProducts = document.querySelector('.hidden-products');
+             const icon = document.getElementById('toggle-icon');
+             
+             if (hiddenProducts) {
+                 if (hiddenProducts.style.display === 'none' || !hiddenProducts.style.display) {
+                     hiddenProducts.style.display = 'block';
+                     if (icon) {
+                         icon.classList.remove('fa-chevron-down');
+                         icon.classList.add('fa-chevron-up');
+                     }
+                 } else {
+                     hiddenProducts.style.display = 'none';
+                     if (icon) {
+                         icon.classList.remove('fa-chevron-up');
+                         icon.classList.add('fa-chevron-down');
+                     }
+                 }
+             }
+             
+             // 添加触觉反馈
+             addHapticFeedback();
+         }
+        
+        // 跳转到产品分析页面
+        function goToProducts() {
+            // 这里可以修改为实际的产品分析页面URL
+            alert('即将跳转到产品分析页面');
+            // window.location.href = '/product';
+        }
+        
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            // 渐入动画
+            const elements = document.querySelectorAll('.animate-fade-in, .card-hover');
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+            
+            // 初始化第一个tab
+            switchTab('overview');
+        });
+        
+        // 触觉反馈
+        function addHapticFeedback() {
+            if (navigator.vibrate) {
+                navigator.vibrate([10]);
+            }
+        }
+        
+        // 交互元素点击效果
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.interactive-element')) {
+                addHapticFeedback();
+                
+                // 添加点击波纹效果
+                const element = e.target.closest('.interactive-element');
+                element.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    element.style.transform = '';
+                }, 150);
+            }
+        });
+        
+        // 卡片悬停效果增强
+        document.querySelectorAll('.card-hover').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // 平滑滚动
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+
+</body>
+</html>

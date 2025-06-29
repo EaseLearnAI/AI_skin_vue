@@ -1,122 +1,39 @@
 <template>
   <div class="profile-view">
-
-    
     <AppHeader 
-      title="个人中心" 
-      icon="user" 
+      title="我的护肤档案" 
+      icon="user-circle" 
       right-icon="cog"
-      bg-color="bg-sakura"
+      bg-color="bg-gradient"
     />
 
     <main class="main-content">
-      <div class="profile-card">
-        <div class="profile-header">
-          <div class="avatar">
-            <img :src="user.avatar || 'https://images.unsplash.com/photo-1526547541286-73a7aaa08f2a?w=200'" alt="User Avatar">
-          </div>
-          <div class="user-info">
-            <h2 class="username">{{ user.name }}</h2>
-            <p class="user-description">{{ user.email }}</p>
-            <button class="edit-profile-btn" @click="showUsernameModal = true">
-              <font-awesome-icon :icon="['fas', 'edit']" />
-              编辑用户名
-            </button>
-          </div>
-        </div>
-        
-        <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-value">{{ stats.productsCount || 0 }}</span>
-            <span class="stat-label">产品数量</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ stats.accountAge || 0 }}</span>
-            <span class="stat-label">使用天数</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ stats.skinAnalysisCount || 0 }}</span>
-            <span class="stat-label">皮肤检测</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ stats.conflictsCount || 0 }}</span>
-            <span class="stat-label">冲突检测</span>
-          </div>
-        </div>
-      </div>
+      <!-- 用户资料卡片 -->
+      <UserProfileCard 
+        :user="user"
+        :stats="statsArray"
+        @avatar-click="handleAvatarClick"
+        @edit-profile="showUsernameModal = true"
+        @edit-gender="handleEditGender"
+      />
       
-      <div class="menu-section">
-        <div class="menu-group">
-          <div class="menu-item" @click="goToHistory">
-            <div class="menu-icon">
-              <font-awesome-icon :icon="['fas', 'history']" />
-            </div>
-            <div class="menu-content">
-              <span class="menu-title">历史记录</span>
-            </div>
-            <div class="menu-action">
-              <font-awesome-icon :icon="['fas', 'chevron-right']" />
-            </div>
-          </div>
-          
-          <div class="menu-item" @click="goToFavorites">
-            <div class="menu-icon">
-              <font-awesome-icon :icon="['fas', 'save']" />
-            </div>
-            <div class="menu-content">
-              <span class="menu-title">我的收藏</span>
-            </div>
-            <div class="menu-action">
-              <font-awesome-icon :icon="['fas', 'chevron-right']" />
-            </div>
-          </div>
-        </div>
-        
-        <div class="menu-group">
-          <div class="menu-item" @click="showFeedbackModal = true">
-            <div class="menu-icon">
-              <font-awesome-icon :icon="['fas', 'question-circle']" />
-            </div>
-            <div class="menu-content">
-              <span class="menu-title">帮助和反馈</span>
-            </div>
-            <div class="menu-action">
-              <font-awesome-icon :icon="['fas', 'chevron-right']" />
-            </div>
-          </div>
-          
-          <!-- <div class="menu-item" @click="goToSettings">
-            <div class="menu-icon">
-              <font-awesome-icon :icon="['fas', 'cog']" />
-            </div>
-            <div class="menu-content">
-              <span class="menu-title">设置</span>
-            </div>
-            <div class="menu-action">
-              <font-awesome-icon :icon="['fas', 'chevron-right']" />
-            </div>
-          </div> -->
-          
-          <div class="menu-item" @click="confirmLogout">
-            <div class="menu-icon">
-              <font-awesome-icon :icon="['fas', 'cog']" />
-            </div>
-            <div class="menu-content">
-              <span class="menu-title">退出登录</span>
-            </div>
-            <div class="menu-action">
-              <font-awesome-icon :icon="['fas', 'chevron-right']" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- 成就徽章 -->
+      <AchievementBadges 
+        :user-stats="stats"
+        @achievement-click="handleAchievementClick"
+      />
+      
+      <!-- 设置菜单 -->
+      <SettingsMenu 
+        @menu-click="handleMenuClick"
+      />
     </main>
 
     <!-- 用户名修改弹窗 -->
-    <div class="modal" v-if="showUsernameModal">
-      <div class="modal-content">
+    <div class="modal-overlay" v-if="showUsernameModal" @click="closeModal">
+      <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>修改用户名</h3>
+          <h3 class="modal-title">修改用户名</h3>
           <button class="close-btn" @click="showUsernameModal = false">
             <font-awesome-icon :icon="['fas', 'times']" />
           </button>
@@ -135,16 +52,59 @@
         </div>
         <div class="modal-footer">
           <button class="cancel-btn" @click="showUsernameModal = false">取消</button>
-          <button class="save-btn" @click="updateUsername" :disabled="!newUsername.trim()">保存</button>
+          <button 
+            class="save-btn" 
+            @click="updateUsername" 
+            :disabled="!newUsername.trim()"
+          >
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 性别修改弹窗 -->
+    <div class="modal-overlay" v-if="showGenderModal" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3 class="modal-title">修改性别</h3>
+          <button class="close-btn" @click="showGenderModal = false">
+            <font-awesome-icon :icon="['fas', 'times']" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>选择性别</label>
+            <div class="gender-selection">
+              <div class="gender-option" :class="{ 'selected': newGender === 'male' }" @click="selectGender('male')">
+                <font-awesome-icon :icon="['fas', 'mars']" />
+                <span>男生</span>
+              </div>
+              <div class="gender-option" :class="{ 'selected': newGender === 'female' }" @click="selectGender('female')">
+                <font-awesome-icon :icon="['fas', 'venus']" />
+                <span>女生</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" @click="showGenderModal = false">取消</button>
+          <button 
+            class="save-btn" 
+            @click="updateGender" 
+            :disabled="!newGender"
+          >
+            保存
+          </button>
         </div>
       </div>
     </div>
     
     <!-- 反馈弹窗 -->
-    <div class="modal" v-if="showFeedbackModal">
-      <div class="modal-content">
+    <div class="modal-overlay" v-if="showFeedbackModal" @click="closeModal">
+      <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>提交反馈</h3>
+          <h3 class="modal-title">提交反馈</h3>
           <button class="close-btn" @click="showFeedbackModal = false">
             <font-awesome-icon :icon="['fas', 'times']" />
           </button>
@@ -199,16 +159,22 @@
     </div>
     
     <!-- 退出登录确认弹窗 -->
-    <div class="modal" v-if="showLogoutModal">
-      <div class="modal-content">
+    <div class="modal-overlay" v-if="showLogoutModal" @click="closeModal">
+      <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>退出登录</h3>
+          <h3 class="modal-title">退出登录</h3>
           <button class="close-btn" @click="showLogoutModal = false">
             <font-awesome-icon :icon="['fas', 'times']" />
           </button>
         </div>
         <div class="modal-body">
-          <p>确定要退出登录吗？</p>
+          <div class="logout-confirmation">
+            <div class="logout-icon">
+              <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
+            </div>
+            <p>确定要退出登录吗？</p>
+            <p class="logout-hint">退出后需要重新登录才能使用完整功能</p>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="cancel-btn" @click="showLogoutModal = false">取消</button>
@@ -218,10 +184,12 @@
     </div>
     
     <!-- 消息提示 -->
-    <div class="toast" v-if="toast.show">
-      <div :class="['toast-content', toast.type]">
-        <font-awesome-icon :icon="['fas', toast.type === 'success' ? 'check-circle' : 'exclamation-circle']" />
-        <span>{{ toast.message }}</span>
+    <div class="toast-container" v-if="toast.show">
+      <div class="toast" :class="toast.type">
+        <div class="toast-icon">
+          <font-awesome-icon :icon="['fas', toast.type === 'success' ? 'check-circle' : 'exclamation-circle']" />
+        </div>
+        <span class="toast-message">{{ toast.message }}</span>
       </div>
     </div>
 
@@ -232,6 +200,9 @@
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
 import BottomNavigation from '@/components/common/BottomNavigation.vue'
+import UserProfileCard from '@/components/profile/UserProfileCard.vue'
+import AchievementBadges from '@/components/profile/AchievementBadges.vue'
+import SettingsMenu from '@/components/profile/SettingsMenu.vue'
 import authService from '@/services/authService'
 import axios from 'axios'
 
@@ -239,14 +210,18 @@ export default {
   name: 'ProfileView',
   components: {
     AppHeader,
-    BottomNavigation
+    BottomNavigation,
+    UserProfileCard,
+    AchievementBadges,
+    SettingsMenu
   },
   data() {
     return {
       user: {
         name: '猫咪护肤使用者',
         email: '',
-        avatar: ''
+        avatar: '',
+        gender: ''
       },
       stats: {
         productsCount: 0,
@@ -255,9 +230,11 @@ export default {
         conflictsCount: 0
       },
       showUsernameModal: false,
+      showGenderModal: false,
       showFeedbackModal: false,
       showLogoutModal: false,
       newUsername: '',
+      newGender: '',
       feedback: {
         title: '',
         content: '',
@@ -270,9 +247,19 @@ export default {
       }
     }
   },
+  computed: {
+    statsArray() {
+      return [
+        { label: '已用产品', value: this.stats.productsCount || 28 },
+        { label: '护肤天数', value: this.stats.accountAge || 15 },
+        { label: '皮肤检测', value: this.stats.skinAnalysisCount || 8 }
+      ]
+    }
+  },
   async created() {
     await this.fetchUserData()
     await this.fetchUserStats()
+    this.addPageLoadAnimation()
   },
   methods: {
     async fetchUserData() {
@@ -281,8 +268,9 @@ export default {
         if (user) {
           this.user = {
             name: user.name || '猫咪护肤使用者',
-            email: user.email || '',
-            avatar: user.avatar || ''
+            email: user.email || user.phone || '',
+            avatar: user.avatar || '',
+            gender: user.gender || ''
           }
         } else {
           const response = await axios.get('/api/users/me', {
@@ -295,8 +283,9 @@ export default {
             const userData = response.data.data.user
             this.user = {
               name: userData.name || '猫咪护肤使用者',
-              email: userData.email || '',
-              avatar: userData.avatar || ''
+              email: userData.email || userData.phone || '',
+              avatar: userData.avatar || '',
+              gender: userData.gender || ''
             }
             authService.setCurrentUser(userData)
           }
@@ -317,8 +306,6 @@ export default {
         
         if (response.data.success) {
           const statsData = response.data.data.stats
-          
-          // 从API获取的统计数据
           this.stats.accountAge = statsData.accountAge || 0
           this.stats.ideasCount = statsData.ideasCount || 0
           
@@ -344,19 +331,57 @@ export default {
             this.stats.conflictsCount = conflictsResponse.data.count || 0
           }
           
-          // 皮肤检测次数暂时没有专门API，这里暂时设为0
           this.stats.skinAnalysisCount = 0
         }
       } catch (error) {
         console.error('获取用户统计数据失败', error)
-        // 如果获取失败，使用默认值
+        // 使用默认值
         this.stats = {
-          productsCount: 12,
-          accountAge: 32,
-          skinAnalysisCount: 5,
+          productsCount: 28,
+          accountAge: 15,
+          skinAnalysisCount: 8,
           conflictsCount: 3
         }
       }
+    },
+    
+    handleMenuClick(action) {
+      switch (action) {
+        case 'history':
+          this.goToHistory()
+          break
+        case 'favorites':
+          this.goToFavorites()
+          break
+        case 'notifications':
+          this.showToast('通知设置功能开发中', 'info')
+          break
+        case 'theme':
+          this.showToast('主题设置功能开发中', 'info')
+          break
+        case 'privacy':
+          this.showToast('隐私设置功能开发中', 'info')
+          break
+        case 'feedback':
+          this.showFeedbackModal = true
+          break
+        case 'about':
+          this.showToast('关于我们功能开发中', 'info')
+          break
+        case 'logout':
+          this.confirmLogout()
+          break
+        default:
+          break
+      }
+    },
+    
+    handleAvatarClick() {
+      this.showToast('头像点击效果', 'info')
+    },
+    
+    handleAchievementClick(achievement) {
+      this.showToast(`点击了成就：${achievement.name}`, 'info')
     },
     
     async updateUsername() {
@@ -378,7 +403,6 @@ export default {
           this.showUsernameModal = false
           this.showToast('用户名更新成功', 'success')
           
-          // 更新本地存储的用户信息
           const currentUser = authService.getCurrentUser()
           if (currentUser) {
             currentUser.name = this.user.name
@@ -439,12 +463,10 @@ export default {
           }
         })
         
-        // 无论API是否成功，都清除本地存储并跳转到登录页
         authService.logout()
         this.$router.push('/login')
       } catch (error) {
         console.error('退出登录失败', error)
-        // 即使API失败，也执行登出操作
         authService.logout()
         this.$router.push('/login')
       }
@@ -462,19 +484,77 @@ export default {
       }, 3000)
     },
     
+    closeModal() {
+      this.showUsernameModal = false
+      this.showGenderModal = false
+      this.showFeedbackModal = false
+      this.showLogoutModal = false
+    },
+    
     goToHistory() {
-      // 跳转到历史记录页面的逻辑
       this.showToast('历史记录功能开发中', 'info')
     },
     
     goToFavorites() {
-      // 跳转到收藏页面的逻辑
       this.showToast('收藏功能开发中', 'info')
     },
     
-    goToSettings() {
-      // 跳转到设置页面的逻辑
-      this.showToast('设置功能开发中', 'info')
+    addPageLoadAnimation() {
+      // 添加页面加载动画效果
+      this.$nextTick(() => {
+        const elements = document.querySelectorAll('.user-profile-card, .achievement-badges, .settings-menu')
+        elements.forEach((el, index) => {
+          el.style.opacity = '0'
+          el.style.transform = 'translateY(20px)'
+          setTimeout(() => {
+            el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+            el.style.opacity = '1'
+            el.style.transform = 'translateY(0)'
+          }, index * 150)
+        })
+      })
+    },
+    
+    selectGender(gender) {
+      this.newGender = gender
+    },
+    
+    async updateGender() {
+      if (!this.newGender) return
+      
+      try {
+        const response = await axios.patch('/api/users/update-gender', 
+          { gender: this.newGender },
+          {
+            headers: {
+              Authorization: `Bearer ${authService.getToken()}`
+            }
+          }
+        )
+        
+        if (response.data.success) {
+          this.user.gender = this.newGender
+          this.newGender = ''
+          this.showGenderModal = false
+          this.showToast('性别更新成功', 'success')
+          
+          const currentUser = authService.getCurrentUser()
+          if (currentUser) {
+            currentUser.gender = this.user.gender
+            authService.setCurrentUser(currentUser)
+          }
+        } else {
+          this.showToast(response.data.message || '性别更新失败', 'error')
+        }
+      } catch (error) {
+        console.error('更新性别失败', error)
+        this.showToast('更新性别失败', 'error')
+      }
+    },
+    
+    handleEditGender() {
+      this.newGender = this.user.gender || ''
+      this.showGenderModal = true
     }
   }
 }
@@ -483,192 +563,22 @@ export default {
 <style scoped>
 .profile-view {
   min-height: 100vh;
-  background-color: #fff9fb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding-bottom: 5rem;
+  position: relative;
 }
 
 .main-content {
-  padding: 1rem;
-}
-
-.profile-card {
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
-  padding: 1.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.avatar {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-right: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.username {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.user-description {
-  font-size: 0.875rem;
-  color: #757575;
-  margin-bottom: 0.5rem;
-}
-
-.edit-profile-btn {
-  display: inline-flex;
-  align-items: center;
-  background-color: #ffd6e5;
-  color: #d63384;
-  border: none;
-  border-radius: 20px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.edit-profile-btn svg {
-  margin-right: 0.25rem;
-  font-size: 0.7rem;
-}
-
-.edit-profile-btn:hover {
-  background-color: #d63384;
-  color: white;
-}
-
-.stats-row {
-  display: flex;
-  justify-content: space-between;
-  text-align: center;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #F8BBD0;
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  color: #757575;
-  margin-top: 0.25rem;
-}
-
-.menu-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.menu-group {
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
-  overflow: hidden;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.menu-item:hover {
-  background-color: #fff0f5;
-}
-
-.menu-item:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 0;
-  height: 1px;
-  background-color: #f5f5f5;
-}
-
-.menu-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  background-color: #ffd6e5;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
-}
-
-.menu-icon svg {
-  color: #d63384;
-  font-size: 1.25rem;
-}
-
-.logout-icon {
-  background-color: #ffe0e0;
-}
-
-.logout-icon svg {
-  color: #dc3545;
-}
-
-.logout-item {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: calc(100vh - 120px);
+  border-radius: 24px 24px 0 0;
   margin-top: 1rem;
+  padding-top: 0.5rem;
+  overflow-y: auto;
 }
 
-.logout-item::before {
-  content: '';
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  top: -0.5rem;
-  height: 1px;
-  background-color: #f5f5f5;
-}
-
-.menu-content {
-  flex: 1;
-}
-
-.menu-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.menu-action {
-  color: #bdbdbd;
-}
-
-/* Modal Styles */
-.modal {
+/* 模态框样式 */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -679,29 +589,43 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   width: 90%;
   max-width: 500px;
-  background-color: white;
-  border-radius: 16px;
+  background: white;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
 }
 
-.modal-header h3 {
+.modal-title {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
   margin: 0;
 }
 
@@ -709,8 +633,19 @@ export default {
   background: none;
   border: none;
   font-size: 1.25rem;
-  color: #999;
+  color: white;
   cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .modal-body {
@@ -728,69 +663,99 @@ export default {
 .form-group label {
   display: block;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
+  color: #374151;
   margin-bottom: 0.5rem;
 }
 
 .form-control {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
   font-size: 1rem;
-  color: #333;
-  background-color: #fafafa;
+  color: #1f2937;
+  background-color: #f9fafb;
   transition: all 0.2s ease;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #F8BBD0;
-  box-shadow: 0 0 0 3px rgba(248, 187, 208, 0.2);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   background-color: white;
 }
 
 textarea.form-control {
   resize: vertical;
   min-height: 120px;
+  font-family: inherit;
+}
+
+.logout-confirmation {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.logout-icon {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.logout-confirmation p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.logout-hint {
+  font-size: 0.875rem;
+  color: #6b7280 !important;
 }
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   padding: 1rem 1.5rem;
-  border-top: 1px solid #f5f5f5;
+  border-top: 1px solid #f3f4f6;
   gap: 0.75rem;
+  background-color: #f9fafb;
 }
 
 .cancel-btn, .save-btn, .logout-btn {
-  padding: 0.5rem 1.25rem;
-  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: none;
 }
 
 .cancel-btn {
-  background-color: #f5f5f5;
-  color: #666;
-  border: none;
+  background-color: #f3f4f6;
+  color: #6b7280;
 }
 
 .cancel-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #e5e7eb;
 }
 
 .save-btn {
-  background-color: #F8BBD0;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
-  border: none;
 }
 
 .save-btn:hover:not(:disabled) {
-  background-color: #d63384;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .save-btn:disabled {
@@ -799,17 +764,17 @@ textarea.form-control {
 }
 
 .logout-btn {
-  background-color: #dc3545;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
-  border: none;
 }
 
 .logout-btn:hover {
-  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-/* Toast Styles */
-.toast {
+/* Toast 样式 */
+.toast-container {
   position: fixed;
   bottom: 6rem;
   left: 50%;
@@ -817,35 +782,53 @@ textarea.form-control {
   z-index: 1100;
 }
 
-.toast-content {
+.toast {
   display: flex;
   align-items: center;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.3s ease-out;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: toastSlideUp 0.3s ease-out;
+  min-width: 300px;
 }
 
-.toast-content svg {
-  margin-right: 0.5rem;
+.toast.success {
+  border-left: 4px solid #10b981;
 }
 
-.toast-content.success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+.toast.error {
+  border-left: 4px solid #ef4444;
 }
 
-.toast-content.error {
-  background-color: #ffebee;
-  color: #c62828;
+.toast.info {
+  border-left: 4px solid #3b82f6;
 }
 
-.toast-content.info {
-  background-color: #e3f2fd;
-  color: #1565c0;
+.toast-icon {
+  margin-right: 0.75rem;
+  font-size: 1.25rem;
 }
 
-@keyframes slideUp {
+.toast.success .toast-icon {
+  color: #10b981;
+}
+
+.toast.error .toast-icon {
+  color: #ef4444;
+}
+
+.toast.info .toast-icon {
+  color: #3b82f6;
+}
+
+.toast-message {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+@keyframes toastSlideUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -856,18 +839,66 @@ textarea.form-control {
   }
 }
 
+/* AppHeader 样式覆盖 */
+:deep(.bg-gradient) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 响应式设计 */
 @media (max-width: 480px) {
-  .stats-row {
-    flex-wrap: wrap;
-  }
-  
-  .stat-item {
-    width: 50%;
-    margin-bottom: 1rem;
-  }
-  
   .modal-content {
     width: 95%;
+    margin: 1rem;
   }
+  
+  .modal-header, .modal-body, .modal-footer {
+    padding: 1rem;
+  }
+  
+  .toast {
+    min-width: 280px;
+    margin: 0 1rem;
+  }
+}
+
+/* 性别选择样式 */
+.gender-selection {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.gender-option {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+}
+
+.gender-option:hover {
+  border-color: #667eea;
+  background-color: white;
+}
+
+.gender-option.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  color: #667eea;
+}
+
+.gender-option svg {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.gender-option span {
+  font-weight: 500;
+  font-size: 0.875rem;
 }
 </style>

@@ -1,60 +1,64 @@
 <template>
   <div class="core-features">
-    <div class="section-header">
-      <div class="icon-container">
-        <font-awesome-icon :icon="['fas', 'bolt']" />
+    <!-- Features Container with Border -->
+    <div class="features-container">
+      <div class="section-header">
+        <h2 class="title">核心功能</h2>
       </div>
-      <h2 class="title">核心功能</h2>
-    </div>
-    
-    <div class="features-grid">
-      <!-- Product Analysis -->
-      <router-link to="/product" class="feature-card">
-        <div class="feature-content">
-          <div class="feature-icon">
-            <font-awesome-icon :icon="['fas', 'flask']" />
+      
+      <div class="features-grid">
+        <!-- Product Analysis -->
+        <router-link to="/product" class="feature-link">
+          <div class="feature-card">
+            <!-- Decorative Number -->
+            <div class="decorative-number number-01">01</div>
+            <!-- Content -->
+            <div class="feature-content">
+              <h3 class="feature-title">产品分析</h3>
+              <p class="feature-description">AI智能解析成分</p>
+            </div>
           </div>
-          <h3 class="feature-title">产品分析</h3>
-          <p class="feature-description">AI智能解析成分</p>
-        </div>
-      </router-link>
+        </router-link>
 
-      <!-- Conflict Detection -->
-      <router-link to="/product?conflictMode=true" class="feature-card">
-        <div class="feature-content">
-          <div class="feature-icon">
-            <font-awesome-icon :icon="['fas', 'exclamation-triangle']" />
+        <!-- Conflict Detection -->
+        <router-link to="/product?conflictMode=true" class="feature-link">
+          <div class="feature-card">
+            <!-- Decorative Number -->
+            <div class="decorative-number number-02">02</div>
+            <!-- Content -->
+            <div class="feature-content">
+              <h3 class="feature-title">冲突检测</h3>
+              <p class="feature-description">避免产品成分冲突</p>
+            </div>
           </div>
-          <h3 class="feature-title">冲突检测</h3>
-          <p class="feature-description">避免产品成分冲突</p>
-        </div>
-      </router-link>
+        </router-link>
 
-      <!-- Smart Scan -->
-      <router-link to="/skinstatus" class="feature-card">
-        <div class="feature-content">
-          <div class="feature-icon">
-            <font-awesome-icon :icon="['fas', 'camera']" />
+        <!-- Skin Analysis -->
+        <router-link to="/skinstatus" class="feature-link">
+          <div class="feature-card">
+            <!-- Decorative Number -->
+            <div class="decorative-number number-03">03</div>
+            <!-- Content -->
+            <div class="feature-content">
+              <h3 class="feature-title">肌肤检测</h3>
+              <p class="feature-description">AI智能皮肤分析</p>
+            </div>
           </div>
-          <h3 class="feature-title">肌肤检测</h3>
-          <p class="feature-description">AI智能皮肤分析</p>
-        </div>
-      </router-link>
+        </router-link>
 
-
-      <!-- Personalized Routine -->
-      <div class="feature-card" @click="openPersonalizedRoutineModal">
-        <div class="feature-content">
-          <div class="feature-icon">
-            <font-awesome-icon :icon="['fas', 'magic']" />
+        <!-- Personalized Plan -->
+        <div class="feature-link" @click="openPersonalizedRoutineModal">
+          <div class="feature-card">
+            <!-- Decorative Number -->
+            <div class="decorative-number number-04">04</div>
+            <!-- Content -->
+            <div class="feature-content">
+              <h3 class="feature-title">个性化方案</h3>
+              <p class="feature-description">AI定制护肤方案</p>
+            </div>
           </div>
-          <h3 class="feature-title">个性化方案</h3>
-          <p class="feature-description">AI定制护肤方案</p>
         </div>
       </div>
-
-      <!-- Smart Scan -->
-
     </div>
     
     <!-- Personalized Routine Modal -->
@@ -85,8 +89,76 @@
         <!-- Input State (Initial or Reset) -->
         <div v-else-if="!generatedPlan" class="routine-input">
           <p class="input-description">
-            请告诉我您的护肤需求和肌肤状况，AI将为您定制个性化护肤方案。
+            请告诉我您的护肤需求，AI将结合您的个人信息和最新肌肤状态为您定制个性化护肤方案。
           </p>
+          
+          <!-- 年龄输入 -->
+          <div class="input-group">
+            <label class="input-label">年龄</label>
+            <input 
+              type="number" 
+              v-model="userAge" 
+              class="age-input" 
+              placeholder="请输入您的年龄"
+              min="13"
+              max="120"
+            >
+          </div>
+          
+          <!-- 最新肌肤状态显示 -->
+          <div class="input-group" v-if="latestSkinAnalysis">
+            <label class="input-label">最新肌肤状态</label>
+            <div class="skin-status-card">
+              <div class="skin-status-header">
+                <span class="skin-type">{{ latestSkinAnalysis.skinType.type }}</span>
+                <span class="health-score" :class="getHealthScoreClass(latestSkinAnalysis.overallAssessment.healthScore)">
+                  {{ latestSkinAnalysis.overallAssessment.healthScore }}/100
+                </span>
+              </div>
+              <div class="skin-condition">{{ latestSkinAnalysis.overallAssessment.skinCondition }}</div>
+              <div class="analysis-date">
+                分析时间：{{ formatDate(latestSkinAnalysis.createdAt) }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- 无肌肤分析时的提示 -->
+          <div class="input-group" v-else>
+            <div class="no-analysis-tip">
+              <font-awesome-icon :icon="['fas', 'info-circle']" class="mr-2" />
+              暂无肌肤分析数据，建议先进行肌肤检测获得更精准的护肤方案
+              <router-link to="/skinstatus" class="analysis-link">去检测</router-link>
+            </div>
+          </div>
+          
+          <!-- 生理周期信息（仅女性用户） -->
+          <div class="input-group" v-if="userGender === 'female'">
+            <label class="input-label">生理周期状态</label>
+            <div class="menstrual-cycle-options">
+              <div class="cycle-option">
+                <input 
+                  type="checkbox" 
+                  id="inCycle" 
+                  v-model="menstrualCycle.isInCycle"
+                  @change="onCycleStatusChange"
+                >
+                <label for="inCycle">当前处于生理周期</label>
+              </div>
+              <div v-if="menstrualCycle.isInCycle" class="cycle-details">
+                <div class="cycle-day-input">
+                  <label>周期第几天：</label>
+                  <input 
+                    type="number" 
+                    v-model="menstrualCycle.cycleDay" 
+                    min="1" 
+                    max="40"
+                    placeholder="1-7"
+                  >
+                  <span>天</span>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <!-- Skin Concerns -->
           <div class="input-group">
@@ -105,29 +177,13 @@
             </div>
           </div>
           
-          <!-- Skin Type -->
-          <div class="input-group">
-            <label class="input-label">肌肤类型</label>
-            <div class="skin-types">
-              <button 
-                v-for="type in skinTypes" 
-                :key="type.value"
-                class="type-button"
-                :class="{ active: selectedSkinType === type.value }"
-                @click="selectedSkinType = type.value"
-              >
-                {{ type.label }}
-              </button>
-            </div>
-          </div>
-          
           <!-- Custom Requirements -->
           <div class="input-group">
             <label class="input-label">其他需求</label>
             <textarea 
               v-model="customRequirements" 
               class="custom-requirements" 
-              placeholder="描述您的其他特殊需求，如敏感肌、痘痘肌等..."
+              placeholder="描述您的其他特殊需求，如敏感肌、特定产品偏好等..."
               rows="3"
             ></textarea>
           </div>
@@ -136,7 +192,7 @@
           <button 
             class="generate-button" 
             @click="generatePersonalizedPlan"
-            :disabled="selectedConcerns.length === 0 || !selectedSkinType"
+            :disabled="!userAge || selectedConcerns.length === 0"
           >
             <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="mr-2" />
             开始生成
@@ -160,6 +216,7 @@
 import AppModal from '@/components/common/AppModal.vue'
 import PersonalizedRoutinePreview from '@/components/home/PersonalizedRoutinePreview.vue'
 import * as planApi from '@/api/planApi'
+import skinAnalysisApi from '@/api/skinAnalysisApi'
 import authService from '@/services/authService'
 
 export default {
@@ -175,7 +232,13 @@ export default {
       planError: null,
       generatedPlan: null,
       selectedConcerns: [],
-      selectedSkinType: '',
+      userAge: '',
+      latestSkinAnalysis: null,
+      userGender: '',
+      menstrualCycle: {
+        isInCycle: false,
+        cycleDay: 1
+      },
       customRequirements: '',
       
       // Predefined options
@@ -186,19 +249,44 @@ export default {
         { label: '控油', value: 'oil-control', icon: ['fas', 'oil-can'] },
         { label: '修护', value: 'repair', icon: ['fas', 'band-aid'] },
         { label: '祛痘', value: 'acne', icon: ['fas', 'virus'] }
-      ],
-      skinTypes: [
-        { label: '干性肌肤', value: 'dry' },
-        { label: '油性肌肤', value: 'oily' },
-        { label: '混合性肌肤', value: 'combination' },
-        { label: '中性肌肤', value: 'normal' },
-        { label: '敏感肌肤', value: 'sensitive' }
       ]
     }
   },
+  async created() {
+    await this.loadUserInfo()
+  },
   methods: {
-    openPersonalizedRoutineModal() {
+    async loadUserInfo() {
+      try {
+        // 获取用户信息
+        const user = authService.getCurrentUser()
+        if (user) {
+          this.userAge = user.age || ''
+          this.userGender = user.gender || ''
+          if (user.menstrualCycle) {
+            this.menstrualCycle = {
+              isInCycle: user.menstrualCycle.isInCycle || false,
+              cycleDay: user.menstrualCycle.cycleDay || 1
+            }
+          }
+        }
+        
+        // 获取最新肌肤分析
+        try {
+          const response = await skinAnalysisApi.getLatestAnalysis()
+          if (response.success) {
+            this.latestSkinAnalysis = response.data.analysis
+          }
+        } catch (error) {
+          console.log('暂无肌肤分析数据:', error)
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error)
+      }
+    },
+    async openPersonalizedRoutineModal() {
       this.showPersonalizedRoutineModal = true
+      await this.loadUserInfo() // 每次打开弹窗时刷新用户信息
     },
     toggleConcern(concern) {
       const index = this.selectedConcerns.indexOf(concern)
@@ -213,7 +301,7 @@ export default {
       }
     },
     async generatePersonalizedPlan() {
-      if (this.selectedConcerns.length === 0 || !this.selectedSkinType) {
+      if (!this.userAge || this.selectedConcerns.length === 0) {
         return
       }
       
@@ -232,7 +320,7 @@ export default {
         // Prepare request data
         const planData = {
           userId: user._id,
-          skinType: this.selectedSkinType,
+          age: parseInt(this.userAge),
           skinConcerns: this.selectedConcerns,
           customRequirements: this.customRequirements
         }
@@ -255,18 +343,22 @@ export default {
         this.loadingPlan = false
       }
     },
-    getSkinTypeLabel(value) {
-      const type = this.skinTypes.find(t => t.value === value)
-      return type ? type.label : ''
+    getHealthScoreClass(score) {
+      if (score < 30) return 'low-score'
+      if (score < 60) return 'medium-score'
+      return 'high-score'
     },
-    getConcernLabel(value) {
-      const concern = this.skinConcerns.find(c => c.value === value)
-      return concern ? concern.label : ''
+    formatDate(date) {
+      return new Date(date).toLocaleDateString('zh-CN')
+    },
+    onCycleStatusChange() {
+      if (!this.menstrualCycle.isInCycle) {
+        this.menstrualCycle.cycleDay = 1
+      }
     },
     resetPlan() {
       this.generatedPlan = null
       this.selectedConcerns = []
-      this.selectedSkinType = ''
       this.customRequirements = ''
     },
     savePlanToRoutine() {
@@ -312,116 +404,117 @@ export default {
 
 <style scoped>
 .core-features {
-  padding: 1rem 0.5rem;
-  background-color: #fff;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Features Container - matches home.html styling */
+.features-container {
+  background-color: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.5rem;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
-}
-
-.icon-container {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: #CE93D8;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
   margin: 0;
 }
 
-/* Fixed 4-grid layout */
+/* Grid Layout - exactly like home.html */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 1rem;
-  max-width: 100%;
 }
 
-/* Ensure grid maintains 2x2 layout on all screen sizes */
-@media (max-width: 768px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-}
-
-.feature-card {
-  background-color: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+/* Feature Link - block level */
+.feature-link {
+  display: block;
   text-decoration: none;
   color: inherit;
-  display: flex;
-  aspect-ratio: 1 / 1;
+  cursor: pointer;
+}
+
+/* Feature Card - matches home.html design */
+.feature-card {
+  background: linear-gradient(to bottom right, #ffffff, #f9fafb);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
 }
 
+/* Decorative Numbers */
+.decorative-number {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 6rem;
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.number-01 {
+  color: #fdf2f8;
+}
+
+.number-02 {
+  color: #faf5ff;
+}
+
+.number-03 {
+  color: #eff6ff;
+}
+
+.number-04 {
+  color: #f0fdf4;
+}
+
+/* Feature Content */
 .feature-content {
-  padding: 1.5rem;
+  position: relative;
+  z-index: 10;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
-  width: 100%;
-}
-
-.feature-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #F3E5F5;
-  color: #AB47BC;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
 }
 
 .feature-title {
   font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
 }
 
 .feature-description {
   font-size: 0.875rem;
-  color: #757575;
+  color: #6b7280;
   margin: 0;
 }
 
-/* Personalized Routine Modal Styles */
+/* Modal Styles */
 .routine-modal {
   background-color: white;
   border-radius: 20px;
@@ -523,6 +616,152 @@ export default {
   color: #333;
 }
 
+.age-input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.age-input:focus {
+  outline: none;
+  border-color: #ce93d8;
+  box-shadow: 0 0 0 2px rgba(206, 147, 216, 0.2);
+}
+
+.skin-status-card {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.skin-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.skin-type {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.health-score {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+.low-score {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.medium-score {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.high-score {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.skin-condition {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.analysis-date {
+  font-size: 0.75rem;
+  color: #adb5bd;
+}
+
+.no-analysis-tip {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.analysis-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.analysis-link:hover {
+  text-decoration: underline;
+}
+
+.menstrual-cycle-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cycle-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cycle-option input[type="checkbox"] {
+  margin: 0;
+}
+
+.cycle-details {
+  margin-left: 1.5rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.cycle-day-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cycle-day-input label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.cycle-day-input input {
+  width: 60px;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  text-align: center;
+}
+
+.cycle-day-input input:focus {
+  outline: none;
+  border-color: #ce93d8;
+  box-shadow: 0 0 0 2px rgba(206, 147, 216, 0.2);
+}
+
+.cycle-day-input span {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
 .skin-concerns {
   display: flex;
   flex-wrap: wrap;
@@ -531,10 +770,10 @@ export default {
 
 .concern-button {
   padding: 0.5rem 0.75rem;
-  border-radius: 9999px;
-  background-color: #f5f5f5;
-  border: 1px solid transparent;
-  color: #666;
+  border-radius: 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #6c757d;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -544,38 +783,10 @@ export default {
 }
 
 .concern-button:hover {
-  background-color: #e0e0e0;
+  background-color: #e9ecef;
 }
 
 .concern-button.active {
-  background-color: #f3e5f5;
-  border-color: #ce93d8;
-  color: #9c27b0;
-}
-
-.skin-types {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.type-button {
-  padding: 0.5rem 0.75rem;
-  border-radius: 9999px;
-  background-color: #f5f5f5;
-  border: 1px solid transparent;
-  color: #666;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.type-button:hover {
-  background-color: #e0e0e0;
-}
-
-.type-button.active {
   background-color: #f3e5f5;
   border-color: #ce93d8;
   color: #9c27b0;
@@ -598,231 +809,96 @@ export default {
 }
 
 .generate-button {
+  width: 100%;
   padding: 0.875rem;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #ab47bc, #7b1fa2);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #9c27b0, #673ab7);
   border: none;
   color: white;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.5rem;
-}
-
-.generate-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(123, 31, 162, 0.3);
-}
-
-.generate-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Result State Styles */
-.routine-result {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.result-header {
-  margin-bottom: 0.5rem;
-}
-
-.result-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 0.75rem;
-}
-
-.result-tags {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.skin-type-tag, .concern-tag {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.skin-type-tag {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.concern-tag {
-  background-color: #e3f2fd;
-  color: #1976d2;
-}
-
-.section-title {
-  font-size: 1.0625rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 1rem;
-  display: flex;
-  align-items: center;
-}
-
-/* Recommended Products */
-.products-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.product-item {
-  background-color: #f9fafb;
-  border-radius: 12px;
-  padding: 0.875rem;
-  border-left: 3px solid #9c27b0;
-  transition: all 0.2s ease;
-}
-
-.product-item:hover {
-  background-color: #f5f5f5;
-  transform: translateX(3px);
-}
-
-.product-category {
-  font-size: 0.75rem;
-  color: #9c27b0;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.product-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.375rem;
-}
-
-.product-reason {
-  font-size: 0.875rem;
-  color: #666;
-  line-height: 1.5;
-}
-
-/* Routine Sections */
-.routine-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.routine-step {
-  display: flex;
-  background-color: #f9fafb;
-  border-radius: 12px;
-  padding: 0.875rem;
-  transition: all 0.25s ease;
-  align-items: center;
-}
-
-.routine-step:hover {
-  background-color: #f5f5f5;
-  transform: translateX(3px);
-}
-
-.step-number {
-  width: 24px;
-  height: 24px;
-  background-color: #9c27b0;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
-}
-
-.step-content {
-  font-size: 0.9375rem;
-  color: #333;
-  line-height: 1.5;
-}
-
-/* Tips Section */
-.tips-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.tip-item {
-  display: flex;
-  align-items: flex-start;
-  font-size: 0.9375rem;
-  color: #555;
-  line-height: 1.5;
-}
-
-.tip-icon {
-  color: #9c27b0;
-  margin-right: 0.625rem;
-  margin-top: 0.25rem;
-  flex-shrink: 0;
-}
-
-.tip-content {
-  flex: 1;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.save-button, .reset-button {
-  flex: 1;
-  padding: 0.75rem;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-}
-
-.save-button {
-  background: linear-gradient(135deg, #ab47bc, #7b1fa2);
-  color: white;
-}
-
-.save-button:hover {
+.generate-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8e24aa, #5e35b1);
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(123, 31, 162, 0.25);
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
 }
 
-.reset-button {
-  background-color: #f5f5f5;
-  color: #666;
+.generate-button:disabled {
+  background: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.reset-button:hover {
-  background-color: #e0e0e0;
-  transform: translateY(-2px);
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .features-container {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+  
+  .features-grid {
+    gap: 0.75rem;
+  }
+  
+  .feature-card {
+    padding: 1rem;
+    height: 120px;
+  }
+  
+  .decorative-number {
+    font-size: 4rem;
+    bottom: 0.25rem;
+    right: 0.25rem;
+  }
+  
+  .feature-title {
+    font-size: 1rem;
+  }
+  
+  .feature-description {
+    font-size: 0.8125rem;
+  }
+  
+  .routine-modal {
+    padding: 1rem;
+    max-width: 95%;
+  }
 }
 
-.mr-2 {
-  margin-right: 0.5rem;
+@media (max-width: 480px) {
+  .features-container {
+    padding: 1rem;
+  }
+  
+  .features-grid {
+    gap: 0.5rem;
+  }
+  
+  .feature-card {
+    padding: 0.75rem;
+    height: 100px;
+  }
+  
+  .decorative-number {
+    font-size: 3rem;
+  }
+  
+  .feature-title {
+    font-size: 0.9375rem;
+  }
+  
+  .feature-description {
+    font-size: 0.75rem;
+  }
 }
 </style> 
